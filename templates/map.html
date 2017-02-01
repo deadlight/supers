@@ -1,0 +1,9 @@
+MAP
+
+{% if news.all %}
+  <ul>
+    {% for item in news.all %}
+      <li>{{ item.content }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

@@ -16,8 +16,11 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from django.conf.urls import url, include
+from gm import views
 
 urlpatterns = [
+    url(r'^character/(?P<slug>[\w-]+)/$', views.character),
+    url(r'^map/', views.map),
     url(r'^admin/', admin.site.urls),
     url(r'^admin_tools/', include('admin_tools.urls')),
 ]
