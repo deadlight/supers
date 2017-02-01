@@ -72,6 +72,7 @@ class Character(BaseModel):
     skills = ManyToManyField(Skill)
     contacts = ManyToManyField(Contact)
     cooldown = DateTimeField(blank=True, null=True)
+    slug = CharField(max_length=255, null=True)
 
 
 class Team(BaseModel):
@@ -81,4 +82,5 @@ class Team(BaseModel):
 
 class News(BaseModel):
     contacts = ForeignKey(Contact)
+    content = CharField(max_length=255, null=True)
     trigger_time = DateTimeField(blank=True, null=True)
