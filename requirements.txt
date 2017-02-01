@@ -1,3 +1,4 @@
 django
 ipython
 django-admin-tools
+django-tastypie
