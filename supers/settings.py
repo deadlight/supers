@@ -58,7 +58,9 @@ ROOT_URLCONF = 'supers.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            'templates'
+        ],
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',

@@ -1,0 +1,14 @@
+<p>{{ character.name }}</p>
+<p>{{ character.player }}</p>
+<p>Glory: {{ character.glory }}</p>
+{% for skill in character.skills.all %}
+  <p>{{ skill }}</p>
+{% endfor %}
+
+{% if public_feed.all %}
+  <ul>
+    {% for item in public_feed.all %}
+      <li>{{ item.content }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
