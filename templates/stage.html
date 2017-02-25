@@ -1,0 +1,17 @@
+<section class="stage-{{ stage.id }}">
+  <h2>Stage: {{ stage.name }}</h2>
+  <p>{{ stage.description }}</p>
+  <h3 class="stage-{{ stage.id }}-difficulty" data-difficulty="{{ stage.difficulty }}" data-difficulty-completed="0">Difficulty points: <span class="current"></span>/<span class="required"></span></h3>
+
+  <h3>Usable Skills</h3>
+  <ul class="required-skills">
+    {% for skill in stage.skills_needed.all %}
+      <li class="needs-{{ skill.id }}">{{ skill }}
+        <ul class="required-skill-characters"></ul>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <button class="stage-button failed">FAILED</button>
+  <button class="stage-button passed disabled">PASSED</button>
+</section>

@@ -34,35 +34,39 @@ class Contact(BaseModel):
 
 class Mission(BaseModel):
     description = TextField(help_text="GM-only notes")
+    claimed = BooleanField(help_text="Has this mission been started by a team")
+    start_time = DateTimeField(null=True, blank=True)
+    end_time = DateTimeField(null=True, blank=True)
+    minutes_to_run = IntegerField(help_text="How long should the mission be available?")
+    codeword = CharField(max_length=255, help_text="Secret code required for some missions", null=True, blank=True)
+    contact = ManyToManyField(Contact)
+    #TODO: ?mission "news" text
 
 
 class Stage(BaseModel):
     description = TextField(
         help_text="GM-only notes"
     )
-    current_characters = ManyToManyField("Character")
     mission = ForeignKey(Mission, related_name="stages")
     on_success = ForeignKey(
         "Stage",
         related_name="stage_on_success",
-        help_text="The mission to trigger on success",
+        help_text="The stage to trigger on success",
         blank=True,
         null=True)
-
     on_failure = ForeignKey("Stage", related_name="stage_on_failure", blank=True, null=True)
-    code = CharField(max_length=200)
-    uid = CharField(max_length=200)
+    #TODO: add: mission on failure
+    #TODO: add: mission on success
     glory_on_success = IntegerField()
     glory_on_failure = IntegerField()
+    start_stage = BooleanField()
     showdown = BooleanField()
-    start_time = DateTimeField(null=True, blank=True)
-    end_time = DateTimeField(null=True, blank=True)
-    contact = ManyToManyField(Contact)
     news_on_success = ManyToManyField("News", related_name="news_on_success")
     news_on_failure = ManyToManyField("News", related_name="news_on_failure")
     cooldown_on_success = IntegerField()
     cooldown_on_failure = IntegerField()
-    skills_needed = ManyToManyField(Skill)
+    difficulty = IntegerField()
+    skills_needed = ManyToManyField("Skill", related_name="skills_needed")
 
 
 class Character(BaseModel):
@@ -73,6 +77,7 @@ class Character(BaseModel):
     contacts = ManyToManyField(Contact)
     cooldown = DateTimeField(blank=True, null=True)
     slug = CharField(max_length=255, null=True)
+    registered = BooleanField(help_text="Is the super government registered")
 
 
 class Team(BaseModel):

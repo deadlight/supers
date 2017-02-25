@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf.urls import url, include
+from django.conf import settings
+from django.conf.urls.static import static
 from gm import views
 from tastypie.api import Api
-from gm.api import CharacterResource, NewsResource, StageResource, MissionResource, TeamResource
+from gm.api import CharacterResource, NewsResource, StageResource, MissionResource, TeamResource, SkillResource
 
 v1_api = Api(api_name='v1')
 v1_api.register(CharacterResource())
@@ -25,10 +27,13 @@ v1_api.register(MissionResource())
 v1_api.register(NewsResource())
 v1_api.register(StageResource())
 v1_api.register(TeamResource())
+v1_api.register(SkillResource())
 
 urlpatterns = [
-    url(r'^character/(?P<slug>[\w-]+)/$', views.character),
-    url(r'^map/', views.map),
+    url(r'^character/(?P<slug>[\w-]+)/$', views.CharacterSheet),
+    url(r'^map/', views.Map),
+    url(r'^admin/stage/(?P<stage_id>[\w-]+)/$', views.RunStage),
+    url(r'^admin/mission/', views.RunMission),
     url(r'^admin/', admin.site.urls),
     url(r'^admin_tools/', include('admin_tools.urls')),
     url(r'^api/', include(v1_api.urls)),

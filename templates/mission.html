@@ -1,0 +1,38 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<section class="mission-info sidebar">
+  <p>Mission: <span class="mission-info-name"></span></p>
+  <ul class="info-members">
+  </ul>
+</section>
+
+<section class="missions">
+  <h2>Select Mission</h2>
+  <fieldset>
+    <select class="select-mission" name="select-mission">
+      {% for mission in mission_list %}
+        <option value="{{ mission.id }}">{{ mission.name }}</option>
+      {% endfor %}
+    </select>
+    <button name="run" onclick="admin.mission.select()">Select mission</button>
+  </fieldset>
+</section>
+
+<section class="team hide">
+  <h2>Select Team Members</h2>
+  <fieldset>
+    <select class="select-team-member" name="select-team-member">
+      {% for character in character_list %}
+        <option class="select-team-member-{{ character.id }}" value="{{ character.id }}">{{ character.id }} | {{ character.name }} | {{ character.player }}</option>
+      {% endfor %}
+    </select>
+    <button name="selectTeamMember" onclick="admin.mission.addTeamMember($('.select-team-member').val());">Add to mission</button>
+    <button name="startMission" onclick="admin.mission.startMission();">START MISSION</button>
+  </fieldset>
+</section>
+
+<section class="stages">
+</section>
+{% endblock %}

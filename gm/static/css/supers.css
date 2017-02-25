@@ -1,0 +1,51 @@
+html {
+  font-family: arial, helvetica, sans-serif;
+}
+
+.hide {
+  display: none;
+}
+
+.used {
+  text-decoration: line-through;
+}
+
+.sidebar {
+  border: 1px solid red;
+  margin: 10px;
+  padding: 10px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 400px;
+}
+
+input[type=checkbox] {
+  height: 25px;
+  width: 25px;
+}
+
+/* stage buttons */
+
+.stage-button {
+  font-size: 24px;
+  line-height: 75px;
+  height: 75px;
+  width: 150px;
+}
+
+.passed {
+  background-color: green;
+}
+
+.passed.disabled {
+  background-color: grey;
+}
+
+.failed {
+  background-color: red;
+}
+
+.failed.disabled {
+  background-color: grey;
+}
