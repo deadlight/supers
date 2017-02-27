@@ -14,6 +14,7 @@ admin.mission.select = function() {
     console.log('Mission selected: ' + admin.mission.selectedMission.name + ', ' +admin.mission.selectedMission.id );
     admin.mission.refreshMissionInfo();
     $(".missions").addClass('hide');
+    //$.get('/admin/claim-mission/' + missionId);
     admin.mission.chooseTeam();
   });
 }
@@ -73,17 +74,18 @@ admin.mission.showCharactersWithSkills = function(stage) {
   // Put character names and checkboxes next to the stage's required skills
   $.each(admin.mission.team, function(key, member) {
     $.each(member.skills, function(key, skill) {
-
-      if (requiredSkillMatch = $('.stage-' + stage + ' .needs-' + skill.id)) {
-        characterSkillLine = $('<li>' + member.name + admin.mission.generateSkillCheckbox(member.id, skill.id) + '</li>');
-        requiredSkillMatch.find('.required-skill-characters').append(characterSkillLine);
+      if (skill.used == false) {
+        if (requiredSkillMatch = $('.stage-' + stage + ' .needs-' + skill.id)) {
+          characterSkillLine = $('<li>' + member.name + admin.mission.generateSkillCheckbox(member.id, skill.id, key) + '</li>');
+          requiredSkillMatch.find('.required-skill-characters').append(characterSkillLine);
+        }
       }
     });
   });
 }
 
-admin.mission.generateSkillCheckbox = function(character, skill) {
-  return '<input type="checkbox" class="usable-skill" data-character="' + character + '" data-skill="' + skill + '" onchange="admin.mission.skillChecked(this);" />';
+admin.mission.generateSkillCheckbox = function(character, skill, skillNumber) {
+  return '<input type="checkbox" class="usable-skill" data-character="' + character + '" data-skill="' + skill + '" data-skill-number="' + skillNumber + '" onchange="admin.mission.skillChecked(this);" />';
 }
 
 admin.mission.skillChecked = function(checkBox) {
@@ -92,12 +94,13 @@ admin.mission.skillChecked = function(checkBox) {
     for (var characterKey in admin.mission.team) {
       if (admin.mission.team[characterKey].id == $(checkBox).data('character')) {
         for (var skillKey in admin.mission.team[characterKey].skills) {
-          if (admin.mission.team[characterKey].skills[skillKey].id == $(checkBox).data('skill')) {
+          if ((admin.mission.team[characterKey].skills[skillKey].id == $(checkBox).data('skill')) && (admin.mission.team[characterKey].skills[skillKey].used != true)) {
             admin.mission.team[characterKey].skills[skillKey].used = true;
             admin.mission.team[characterKey].missionGlory += 1;
             admin.mission.difficultyElement.data('difficultyCompleted', admin.mission.difficultyElement.data('difficultyCompleted')+1);
             admin.mission.updateDifficulty();
             admin.mission.refreshMissionInfo();
+            break;
           }
         }
       }
@@ -107,20 +110,19 @@ admin.mission.skillChecked = function(checkBox) {
     for (var characterKey in admin.mission.team) {
       if (admin.mission.team[characterKey].id == $(checkBox).data('character')) {
         for (var skillKey in admin.mission.team[characterKey].skills) {
-          if (admin.mission.team[characterKey].skills[skillKey].id == $(checkBox).data('skill')) {
+          if ((admin.mission.team[characterKey].skills[skillKey].id == $(checkBox).data('skill')) && (admin.mission.team[characterKey].skills[skillKey].used != false)) {
             admin.mission.team[characterKey].skills[skillKey].used = false;
             admin.mission.team[characterKey].missionGlory -= 1;
             admin.mission.difficultyElement.data('difficultyCompleted', admin.mission.difficultyElement.data('difficultyCompleted')-1);
             admin.mission.updateDifficulty();
             admin.mission.refreshMissionInfo();
+            break;
           }
         }
       }
     }
   }
 }
-
-
 
 admin.mission.refreshMissionInfo = function() {
   // Update mission name
@@ -162,40 +164,63 @@ admin.mission.updateGlory = function(memberID, modifier) {
 }
 
 admin.mission.stagePassed = function(stageID) {
-  //STAGE PASSED
-  /*
-    trigger news
-    get next stage
+  $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
+    if (data.objects[0].news_on_success != null) {
+      admin.triggerNews(data.objects[0].news_on_success);
+    }
 
-    if last stage trigger mission passed
-  */
+    if (data.objects[0].on_success != null) {
+      $.getJSON(data.objects[0].on_success, function(nextData) {
+        admin.mission.startStage(nextData.id);
+      });
+    } else {
+      admin.mission.passed();
+    }
+  });
 }
 
 admin.mission.stageFailed = function(stageID) {
-  //STAGE PASSED
-  /*
-    trigger news
-    get next stage
+  $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
+    if (data.objects[0].news_on_failure != null) {
+      admin.triggerNews(data.objects[0].news_on_failure);
+    }
 
-    if last stage trigger mission failed
-  */
+    if (data.objects[0].on_failure != null) {
+      $.getJSON(data.objects[0].on_failure, function(nextData) {
+        admin.mission.startStage(nextData.id);
+      });
+    } else {
+      admin.mission.failed();
+    }
+  });
 }
 
 admin.mission.passed = function() {
-  //MISSION PASSED!
+  //$.get('/admin/claim-mission/' + missionId);
+  console.log('MISSION PASSED!');
+  alert('MISSION PASSED');
   /*
-    Save individual glory
-    Calculate and save individual cooldowns
-    Calculate and save team glory
-    Deactivate mission
+    Show form that allows:
+
+     - Save individual glory
+     - Calculate and save individual cooldowns
+     - Calculate and save team glory
+     - Deactivate mission
   */
 }
 
 admin.mission.failed = function() {
-  //MISSION FAILED!
+  //$.get('/admin/claim-mission/' + missionId);
+  console.log('MISSION FAILED!');
   /*
-    Save individual glory
-    Calculate and save individual cooldowns
-    Calculate and save team glory
+    Show form that allows:
+
+      Save individual glory (only negative)
+      Calculate and save individual cooldowns
+      Calculate and save team glory (only negative)
   */
+}
+
+admin.triggerNews = function(newsURL) {
+  console.log('Trigger news')
 }

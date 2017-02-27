@@ -31,6 +31,8 @@ class Skill(BaseModel):
 class Contact(BaseModel):
     pass
 
+class Location(BaseModel):
+    pass
 
 class Mission(BaseModel):
     description = TextField(help_text="GM-only notes")
@@ -39,14 +41,24 @@ class Mission(BaseModel):
     end_time = DateTimeField(null=True, blank=True)
     minutes_to_run = IntegerField(help_text="How long should the mission be available?")
     codeword = CharField(max_length=255, help_text="Secret code required for some missions", null=True, blank=True)
-    contact = ManyToManyField(Contact)
-    #TODO: ?mission "news" text
+    contact = ManyToManyField(Contact, blank=True)
+    news_message = TextField(help_text="Mission info displayed in news feeds")
+    on_success = ForeignKey(
+        "Mission",
+        related_name="mission_on_success",
+        help_text="The mission to trigger on success",
+        blank=True,
+        null=True)
+    on_success_delay = IntegerField(help_text="How long should mission on success be delayed", blank=True, null=True)
+    on_failure = ForeignKey("Mission", related_name="mission_on_failure", blank=True, null=True)
+    on_failure_delay = IntegerField(help_text="How long should mission on success be delayed", blank=True, null=True)
+    location = ForeignKey("Location", related_name="mission_location", blank=True, null=True)
+    repetitions = IntegerField(default=1, help_text="How many times can the mission be re-run. (To use this, the mission should trigger itself on success and/or failure)")
+
 
 
 class Stage(BaseModel):
-    description = TextField(
-        help_text="GM-only notes"
-    )
+    description = TextField(help_text="GM-only notes", null=True, blank=True)
     mission = ForeignKey(Mission, related_name="stages")
     on_success = ForeignKey(
         "Stage",
@@ -55,30 +67,34 @@ class Stage(BaseModel):
         blank=True,
         null=True)
     on_failure = ForeignKey("Stage", related_name="stage_on_failure", blank=True, null=True)
-    #TODO: add: mission on failure
-    #TODO: add: mission on success
+    # mission_if_failure = ForeignKey("Mission", related_name="mission_on_failure", blank=True, null=True)
+    # mission_if_success = ForeignKey("Mission", related_name="mission_on_success", blank=True, null=True)
     glory_on_success = IntegerField()
     glory_on_failure = IntegerField()
     start_stage = BooleanField()
     showdown = BooleanField()
-    news_on_success = ManyToManyField("News", related_name="news_on_success")
-    news_on_failure = ManyToManyField("News", related_name="news_on_failure")
-    cooldown_on_success = IntegerField()
-    cooldown_on_failure = IntegerField()
+    news_on_success = ManyToManyField("News", related_name="news_on_success", blank=True)
+    news_on_failure = ManyToManyField("News", related_name="news_on_failure", blank=True)
+    cooldown_on_success = IntegerField(null=True, blank=True)
+    cooldown_on_failure = IntegerField(null=True, blank=True)
     difficulty = IntegerField()
     skills_needed = ManyToManyField("Skill", related_name="skills_needed")
+    success_message = TextField(null=True, blank=True)
+    fail_message = TextField(null=True, blank=True)
 
+class CharacterSkillLink(Model):
+    skill = ForeignKey(Skill)
+    character = ForeignKey('Character')
 
 class Character(BaseModel):
     """Characters."""
     player = CharField(max_length=255)
     glory = IntegerField(default=0)
-    skills = ManyToManyField(Skill)
     contacts = ManyToManyField(Contact)
     cooldown = DateTimeField(blank=True, null=True)
     slug = CharField(max_length=255, null=True)
     registered = BooleanField(help_text="Is the super government registered")
-
+    skills = ManyToManyField(Skill, through='CharacterSkillLink')
 
 class Team(BaseModel):
     members = ManyToManyField(Character, related_name="team_members")

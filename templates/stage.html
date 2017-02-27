@@ -12,6 +12,6 @@
     {% endfor %}
   </ul>
 
-  <button class="stage-button failed">FAILED</button>
-  <button class="stage-button passed disabled">PASSED</button>
+  <button class="stage-button failed" onclick="admin.mission.stageFailed({{ stage.id }});">FAILED</button>
+  <button class="stage-button passed disabled" onclick="admin.mission.stagePassed({{ stage.id }});">PASSED</button>
 </section>

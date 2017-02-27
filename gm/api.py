@@ -30,13 +30,16 @@ class StageResource(ModelResource):
     mission = fields.ForeignKey(MissionResource, 'mission', full=True)
     on_success = fields.ForeignKey('self', 'on_success', null=True)
     on_failure = fields.ForeignKey('self', 'on_failure', null=True)
+    news_on_success = fields.ToManyField(NewsResource, 'news_on_success', null=True)
+    news_on_failure = fields.ToManyField(NewsResource, 'news_on_failure', null=True)
     skills_needed = fields.ToManyField(SkillResource, 'skills_needed', full=True)
 
     class Meta:
         queryset = Stage.objects.all()
         filtering = {
             'mission': ALL,
-            'start_stage': ALL
+            'start_stage': ALL,
+            'id': ALL,
         }
 
 class TeamResource(ModelResource):

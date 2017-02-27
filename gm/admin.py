@@ -11,17 +11,23 @@ from .models import (
     Team,
     News,
     Mission,
+    CharacterSkillLink,
+    Location,
 )
 
+class CharacterInline(admin.TabularInline):
+    model = CharacterSkillLink
+    extra = 3
 
 class CharacterAdmin(admin.ModelAdmin):
-    pass
-
+    inlines = (CharacterInline  ,)
 
 class StageInline(admin.StackedInline):
     model = Stage
     extra = 0
 
+class LocationAdmin(admin.ModelAdmin):
+    pass
 
 class MissionAdminForm(forms.ModelForm):
 
@@ -129,3 +135,4 @@ admin.site.register(Stage, StageAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(News, NewsAdmin)
 admin.site.register(Mission, MissionAdmin)
+admin.site.register(Location, LocationAdmin)
