@@ -7,6 +7,8 @@ admin.mission.selectedMission = {};
 // admin.mission.stage = {};
 admin.mission.team = [];
 
+admin.mission.glory = 0;
+
 admin.mission.select = function() {
   var missionId = $('.select-mission').val();
   $.getJSON('/api/v1/mission/' + missionId + '/?format=json', function(data) {
@@ -130,6 +132,9 @@ admin.mission.refreshMissionInfo = function() {
     $('.mission-info-name').text(admin.mission.selectedMission.name);
   }
 
+  //Update mission glory
+  $('.mission-glory').text(admin.mission.glory);
+
   //Update team list
   infoMembers = $('.info-members');
   infoMembers.empty();
@@ -163,10 +168,18 @@ admin.mission.updateGlory = function(memberID, modifier) {
   admin.mission.refreshMissionInfo();
 }
 
+admin.mission.updateMissionGlory = function(glory) {
+  admin.mission.glory += glory;
+  admin.mission.refreshMissionInfo();
+}
+
 admin.mission.stagePassed = function(stageID) {
+  //TODO: stage passed message!
+  alert('STAGE PASSED INFO');
   $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
     if (data.objects[0].news_on_success != null) {
       admin.triggerNews(data.objects[0].news_on_success);
+      admin.mission.updateMissionGlory(data.objects[0].glory_on_success);
     }
 
     if (data.objects[0].on_success != null) {
@@ -180,6 +193,8 @@ admin.mission.stagePassed = function(stageID) {
 }
 
 admin.mission.stageFailed = function(stageID) {
+  //TODO: stage passed message!
+  alert('STAGE FAILED INFO')
   $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
     if (data.objects[0].news_on_failure != null) {
       admin.triggerNews(data.objects[0].news_on_failure);
@@ -196,28 +211,51 @@ admin.mission.stageFailed = function(stageID) {
 }
 
 admin.mission.passed = function() {
-  //$.get('/admin/claim-mission/' + missionId);
   console.log('MISSION PASSED!');
-  alert('MISSION PASSED');
-  /*
-    Show form that allows:
+  $('.stages').load("/admin/pass-mission", function(){
+    // show characters' glory (stages + powers used)
+    var characterSummary = $('.mission-passed .characters');
+    $.each(admin.mission.team, function(key, member) {
+      var totalGlory = member.missionGlory + admin.mission.glory;
+      var characterItem = $('<p></p>');
+      characterItem.append(member.name);
+      characterItem.append('<input data-id="' + member.id + '" onchange="admin.mission.updateCharacterTotalGlory(this);" type="text" class="' + member.id + '-skill-glory" value="' + member.missionGlory + '" /> + <input data-id="' + member.id + '" onchange="admin.mission.updateCharacterTotalGlory(this);" type="text" class="' + member.id + '-mission-glory" value="' + admin.mission.glory + '" /> = <span class="' + member.id + '-total-glory">' + totalGlory + '</span>')
+      characterSummary.append(characterItem);
+    });
+    // show team glory 1 per participant
+  });
+}
 
+admin.mission.updateCharacterTotalGlory = function(input) {
+  //TODO: update the correct variable and update the total
+  console.log(input.value);
+}
+
+admin.mission.savePassed = function() {
+  /*
      - Save individual glory
      - Calculate and save individual cooldowns
      - Calculate and save team glory
      - Deactivate mission
+     - unclaim mission
+       //$.get('/admin/unclaim-mission/' + missionId);
   */
 }
 
 admin.mission.failed = function() {
-  //$.get('/admin/claim-mission/' + missionId);
   console.log('MISSION FAILED!');
+  alert('MISSION FAILED');
+}
+
+admin.mission.saveFailed = function() {
   /*
     Show form that allows:
 
       Save individual glory (only negative)
       Calculate and save individual cooldowns
       Calculate and save team glory (only negative)
+      Unclaim mission
+        //$.get('/admin/unclaim-mission/' + missionId);
   */
 }
 

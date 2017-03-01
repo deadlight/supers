@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 def CharacterSheet(request, slug):
     try:
         character = Character.objects.get(slug=slug)
-        news = News.objects.filter().all() #TODO: filter properly
+        news = News.objects.filter().all() #TODO: filter properly and order by time
     except Character.DoesNotExist:
         raise Http404("Invalid user")
     return render(request, 'character.html', {
@@ -68,3 +68,9 @@ def UnclaimMission(request, mission_id):
     mission.claimed = False
     mission.save()
     return render(request, 'unclaim-mission.html')
+
+def PassMission(request):
+    return render(request, 'pass-mission.html')
+
+def FailMission(request):
+    return render(request, 'fail-mission.html')
