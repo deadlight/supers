@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^admin/trigger-mission/(?P<mission_id>[\w-]+)/$', views.TriggerMission),
     url(r'^admin/pass-mission/', views.PassMission),
     url(r'^admin/fail-mission/', views.FailMission),
+    url(r'^admin/update-character-glory/(?P<character_id>\d+)/(?P<glory>\d+)/$', views.updateCharacterGlory),
     url(r'^admin/trigger-news/(?P<news_id>[\w-]+)/$', views.TriggerNews),
     url(r'^admin/claim-mission/(?P<mission_id>[\w-]+)/$', views.ClaimMission),
     url(r'^admin/unclaim-mission/(?P<mission_id>[\w-]+)/$', views.UnclaimMission),

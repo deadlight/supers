@@ -213,50 +213,98 @@ admin.mission.stageFailed = function(stageID) {
 admin.mission.passed = function() {
   console.log('MISSION PASSED!');
   $('.stages').load("/admin/pass-mission", function(){
-    // show characters' glory (stages + powers used)
+    admin.mission.heroTeams = {};
+
+    // show characters' glory (participation glory + powers used glory)
     var characterSummary = $('.mission-passed .characters');
     $.each(admin.mission.team, function(key, member) {
-      var totalGlory = member.missionGlory + admin.mission.glory;
+      member.participationGlory = admin.mission.glory;
+      var totalGlory = member.missionGlory + member.participationGlory;
+
       var characterItem = $('<p></p>');
       characterItem.append(member.name);
-      characterItem.append('<input data-id="' + member.id + '" onchange="admin.mission.updateCharacterTotalGlory(this);" type="text" class="' + member.id + '-skill-glory" value="' + member.missionGlory + '" /> + <input data-id="' + member.id + '" onchange="admin.mission.updateCharacterTotalGlory(this);" type="text" class="' + member.id + '-mission-glory" value="' + admin.mission.glory + '" /> = <span class="' + member.id + '-total-glory">' + totalGlory + '</span>')
+      var missionGloryElement = $('<input data-id="' + member.id + '" type="text" class="skill-glory-' + member.id +'" value="' + member.missionGlory + '" />');
+
+      var participationGloryElement = $('<input data-id="' + member.id + '" type="text" class="participation-glory-' + member.id + '" value="' + member.participationGlory + '" />');
+
+      characterItem.append(missionGloryElement);
+      characterItem.append(' + ');
+      characterItem.append(participationGloryElement);
+      characterItem.append(' = <span class="total-glory-' + member.id + '">' + totalGlory + '</span>');
       characterSummary.append(characterItem);
+
+      $('.skill-glory-' + member.id).keyup(function(){
+        member.missionGlory = $(this).val();
+        $('.total-glory-' + member.id).text(Number(member.missionGlory) + Number(member.participationGlory));
+      });
+
+      $('.participation-glory-' + member.id).keyup(function(){
+        member.participationGlory = $(this).val();
+        $('.total-glory-' + member.id).text(Number(member.missionGlory) + Number(member.participationGlory));
+      });
+
+      //If the member is in a team add 1 to that team's score
+      if (!member.team.length == 0) {
+        //Member is in a team
+        if (member.team[0].id in admin.mission.heroTeams) {
+          //An entry for this team already exists
+          admin.mission.heroTeams[member.team[0].id].missionGlory++;
+        } else {
+          //There is no entry for this team
+          admin.mission.heroTeams[member.team[0].id] = {
+            'name': member.team[0].name,
+            'missionGlory': 1
+          }
+        }
+      }
     });
-    // show team glory 1 per participant
+
+    // show teams' glory
+    $.each(admin.mission.heroTeams, function(id, team) {
+      $('.mission-passed .teams').append('<p>' + team.name + ' <input type="text" class="team-' + id + '-glory" value="' + team.missionGlory + '" /></p>');
+    });
   });
 }
 
-admin.mission.updateCharacterTotalGlory = function(input) {
-  //TODO: update the correct variable and update the total
-  console.log(input.value);
-}
+admin.mission.saveResult = function(success) {
+  //Save individual glory & cooldown
+  $.each(admin.mission.team, function(key, member) {
+    //Save glory
+    newTotal = member.missionGlory + member.participationGlory;
+    if (success == true || newTotal < 0) {
+      $.get('/admin/update-character-glory/' + member.id + '/' + newTotal);
+    }
 
-admin.mission.savePassed = function() {
-  /*
-     - Save individual glory
-     - Calculate and save individual cooldowns
-     - Calculate and save team glory
-     - Deactivate mission
-     - unclaim mission
-       //$.get('/admin/unclaim-mission/' + missionId);
-  */
+    //Save cooldown
+    //if member has super speed or flight
+      // reduced cooldown
+    // else
+      //normal cooldown
+
+    if (success == true) {
+      $.getJSON('/api/v1/stage/?format=json&id=' + admin.mission.currentStage, function(data) {
+        console.log(data.)
+      });
+    } else {
+
+    }
+  });
+
+  // save team glory (positive only if mission is successful)
+
+  // reduce mission repetitions by 1 if mission success
+
+  // unclaim mission
+  $.get('/admin/unclaim-mission/' + admin.mission.selectedMission.id);
+
+  // trigger missions on success/failure (with delay!)
+
+  // trigger news! success / fail
 }
 
 admin.mission.failed = function() {
   console.log('MISSION FAILED!');
   alert('MISSION FAILED');
-}
-
-admin.mission.saveFailed = function() {
-  /*
-    Show form that allows:
-
-      Save individual glory (only negative)
-      Calculate and save individual cooldowns
-      Calculate and save team glory (only negative)
-      Unclaim mission
-        //$.get('/admin/unclaim-mission/' + missionId);
-  */
 }
 
 admin.triggerNews = function(newsURL) {

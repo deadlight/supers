@@ -13,10 +13,15 @@ from .models import (
     Mission,
     CharacterSkillLink,
     Location,
+    TeamCharacterLink,
 )
 
 class CharacterInline(admin.TabularInline):
     model = CharacterSkillLink
+    extra = 3
+
+class CharacterTeamInline(admin.TabularInline):
+    model = TeamCharacterLink
     extra = 3
 
 class CharacterAdmin(admin.ModelAdmin):
@@ -117,7 +122,7 @@ class StageAdmin(admin.ModelAdmin):
 
 
 class TeamAdmin(admin.ModelAdmin):
-    pass
+    inlines = (CharacterTeamInline  ,)
 
 
 class MissionGroupAdmin(admin.ModelAdmin):

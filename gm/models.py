@@ -87,7 +87,7 @@ class CharacterSkillLink(Model):
     character = ForeignKey('Character')
 
 class Character(BaseModel):
-    """Characters."""
+    """Characters"""
     player = CharField(max_length=255)
     glory = IntegerField(default=0)
     contacts = ManyToManyField(Contact)
@@ -95,9 +95,14 @@ class Character(BaseModel):
     slug = CharField(max_length=255, null=True)
     registered = BooleanField(help_text="Is the super government registered")
     skills = ManyToManyField(Skill, through='CharacterSkillLink')
+    member_of = ManyToManyField('Team', through='TeamCharacterLink')
+
+class TeamCharacterLink(Model):
+    member = ForeignKey(Character)
+    team = ForeignKey('Team')
 
 class Team(BaseModel):
-    members = ManyToManyField(Character, related_name="team_members")
+    members = ManyToManyField(Character, through='TeamCharacterLink')
     glory = IntegerField(default=0)
 
 

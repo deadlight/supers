@@ -74,3 +74,9 @@ def PassMission(request):
 
 def FailMission(request):
     return render(request, 'fail-mission.html')
+
+def updateCharacterGlory(request, character_id, glory):
+    character = get_object_or_404(Character, id=character_id)
+    character.glory += int(glory)
+    character.save()
+    return render(request, 'character-glory-updated.html')

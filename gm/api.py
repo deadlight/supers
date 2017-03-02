@@ -1,6 +1,6 @@
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie import fields
-from gm.models import Character, News, Mission, Stage, Team, Skill
+from gm.models import Character, News, Mission, Stage, Team, Skill, TeamCharacterLink
 
 
 
@@ -9,7 +9,8 @@ class SkillResource(ModelResource):
         queryset = Skill.objects.all()
 
 class CharacterResource(ModelResource):
-    skills = fields.ToManyField(SkillResource, 'skills', full=True)
+    skills = fields.ToManyField(SkillResource, 'skills', full=True, null=True)
+    team = fields.ToManyField(SkillResource, 'member_of', full=True, null=True)
 
     class Meta:
         queryset = Character.objects.all()
@@ -43,5 +44,10 @@ class StageResource(ModelResource):
         }
 
 class TeamResource(ModelResource):
+    members = fields.ToManyField(CharacterResource, 'members', full=True)
     class Meta:
         queryset = Team.objects.all()
+        filtering = {
+            'id': ALL,
+            'members': ALL,
+        }
