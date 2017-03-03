@@ -185,9 +185,7 @@ admin.mission.updateMissionGlory = function(glory) {
 }
 
 // Handle a stage being passed
-admin.mission.stagePassed = function(stageID) {
-  //TODO: stage passed message!
-  alert('STAGE PASSED INFO');
+admin.mission.handleStagePassed = function(stageID) {
   $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
     if (data.objects[0].news_on_success != null) {
       admin.triggerNews(data.objects[0].news_on_success);
@@ -204,10 +202,22 @@ admin.mission.stagePassed = function(stageID) {
   });
 }
 
+// display stage passed message
+admin.mission.stagePassed = function(stageID) {
+  $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
+    if (data.objects[0].pass_message !== undefined) {
+      //display message
+      message = $('<h1 class="title">Stage passed</h1><p>' + data.objects[0].pass_message + '</p><p><button onclick="admin.mission.handleStagePassed(' + stageID + ');">Continue</button>');
+      $('.stages').html(message);
+    } else {
+      // no message
+      admin.mission.handleStagePassed(stageID);
+    }
+  });
+}
+
 // handle a stage being failed
-admin.mission.stageFailed = function(stageID) {
-  //TODO: stage failed message!
-  alert('STAGE FAILED INFO')
+admin.mission.handleStageFailed = function(stageID) {
   $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
     if (data.objects[0].news_on_failure != null) {
       admin.triggerNews(data.objects[0].news_on_failure);
@@ -219,6 +229,20 @@ admin.mission.stageFailed = function(stageID) {
       });
     } else {
       admin.mission.failed();
+    }
+  });
+}
+
+// display stage failed message
+admin.mission.stageFailed = function(stageID) {
+  $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
+    if (data.objects[0].fail_message != '') {
+      //display message
+      message = $('<h1 class="title">Stage failed</h1><p>' + data.objects[0].fail_message + '</p><p><button onclick="admin.mission.handleStageFailed(' + stageID + ');">Continue</button>');
+      $('.stages').html(message);
+    } else {
+      // no message
+      admin.mission.handleStageFailed(stageID);
     }
   });
 }
@@ -335,11 +359,29 @@ admin.mission.saveResult = function(success) {
 
 // Handle a mission failure
 admin.mission.failed = function() {
+  // TODO: handle mission failed
   console.log('MISSION FAILED!');
   alert('MISSION FAILED');
 }
 
+// cancel and reset current mission
+admin.mission.cancel = function() {
+  if (!$.isEmptyObject(admin.mission.selectedMission)) {
+    $.get('/admin/unclaim-mission/' + admin.mission.selectedMission.id, function(){
+      location.reload();
+    });
+  } else {
+    location.reload();
+  }
+}
+
 // set a news item to appear
 admin.triggerNews = function(newsURL) {
+  //TODO: handle trigger news
   console.log('Trigger news')
+}
+
+// Trigger mission
+admin.triggerMission = function(missionId, delay) {
+  //TODO: implement trigger mission
 }
