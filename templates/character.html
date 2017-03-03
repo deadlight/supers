@@ -1,14 +1,32 @@
-<p>{{ character.name }}</p>
-<p>{{ character.player }}</p>
-<p>Glory: {{ character.glory }}</p>
-{% for skill in character.skills.all %}
-  <p>{{ skill }}</p>
-{% endfor %}
+{% extends "_base.html" %}
 
-{% if public_feed.all %}
+{% block extra_html_class %}character{% endblock %}
+
+{% block content %}
+  <h1>{{ character.name }}</h1>
+  <p>Player: {{ character.player }}</p>
+  <h2>Glory: <span class="glory">{{ character.glory }}</span></h2>
+  <h2>Available for mission?</h2>
+  <p class="available">
+    {% if available %}
+      <span class="yes">Yes</span>
+    {% else %}
+      <span class="no">No</span> - wait {{ time_to_available }} minutes
+    {% endif %}
+  </p>
+  <h2>Skills</h2>
   <ul>
-    {% for item in public_feed.all %}
-      <li>{{ item.content }}</li>
-    {% endfor %}
+  {% for skill in character.skills.all %}
+    <li>{{ skill }}</li>
+  {% endfor %}
   </ul>
-{% endif %}
+
+  <h2>Latest news</h2>
+  {% if news %}
+    <ul>
+      {% for item in news %}
+        <li class="news-item news-{{ item.contact }}">{{ item.content }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

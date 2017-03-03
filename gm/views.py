@@ -1,30 +1,43 @@
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render
-from gm.models import Character, News, Mission, Stage
+from gm.models import Character, News, Mission, Stage, Team
 from django.db import models
-from datetime import datetime
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
+from math import floor
 
 def CharacterSheet(request, slug):
     try:
         character = Character.objects.get(slug=slug)
-        news = News.objects.filter().all() #TODO: filter properly and order by time
+        news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts=1).all() #TODO: filter properly by character's allowed news
+
+        if character.cooldown < now():
+            available = True
+            time_to_available = 0
+        else:
+            available = False
+            time_to_available = character.cooldown-now()
+            time_to_available = floor(time_to_available.total_seconds()/60)+1
     except Character.DoesNotExist:
         raise Http404("Invalid user")
     return render(request, 'character.html', {
         'character': character,
-        'news': news
+        'news': news,
+        'available': available,
+        'time_to_available': time_to_available,
     })
 
 def Map(request):
-    public_feed = News.objects.filter().all() #TODO: filter properly
+    public_feed = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts=1).all()
     return render(request, 'map.html', {
         'public_feed': public_feed,
     })
 
 def RunMission(request):
-    mission_list = Mission.objects.filter().all() #TODO: filter by available mission
+    mission_list = Mission.objects.filter(start_time__lte=now()).filter(end_time__gte=now()).all();
+
+    #TODO: filter by available mission - start time before now, not claimed and more than zero repetitions left
     character_list = Character.objects.filter().all()
     return render(request, 'mission.html', {
         'mission_list': mission_list,
@@ -79,4 +92,17 @@ def updateCharacterGlory(request, character_id, glory):
     character = get_object_or_404(Character, id=character_id)
     character.glory += int(glory)
     character.save()
-    return render(request, 'character-glory-updated.html')
+    return render(request, 'glory-updated.html')
+
+def updateTeamGlory(request, team_id, glory):
+    team = get_object_or_404(Team, id=team_id)
+    team.glory += int(glory)
+    team.save()
+    return render(request, 'glory-updated.html')
+
+def DecrementRepetitions(request, mission_id):
+    mission = get_object_or_404(Mission, id=mission_id)
+    if mission.repetitions > 0:
+        mission.repetitions -= 1;
+    mission.save()
+    return render(request, 'decrement-repetitions.html')

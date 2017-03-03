@@ -1,5 +1,6 @@
 """Game models."""
 # flake8: noqa: E203,D211
+from django.utils.timezone import now
 from django.db.models import (
     Model,
     IntegerField,
@@ -10,7 +11,6 @@ from django.db.models import (
     BooleanField,
     DateTimeField,
 )
-
 
 class BaseModel(Model):
     """Shared attributes."""
@@ -91,7 +91,7 @@ class Character(BaseModel):
     player = CharField(max_length=255)
     glory = IntegerField(default=0)
     contacts = ManyToManyField(Contact)
-    cooldown = DateTimeField(blank=True, null=True)
+    cooldown = DateTimeField(blank=True, null=True, default=now)
     slug = CharField(max_length=255, null=True)
     registered = BooleanField(help_text="Is the super government registered")
     skills = ManyToManyField(Skill, through='CharacterSkillLink')
@@ -110,3 +110,4 @@ class News(BaseModel):
     contacts = ForeignKey(Contact)
     content = CharField(max_length=255, null=True)
     trigger_time = DateTimeField(blank=True, null=True)
+    active = BooleanField(default=True, help_text='Uncheck to stop news EVER being shown')

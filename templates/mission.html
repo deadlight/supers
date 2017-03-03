@@ -14,7 +14,12 @@
     <h2>Select Mission</h2>
     <select class="select-mission" name="select-mission">
       {% for mission in mission_list %}
-        <option value="{{ mission.id }}">{{ mission.name }}</option>
+        <option value="{{ mission.id }}">
+          {% if mission.codeword %}
+            {{ mission.codeword }} - 
+          {% endif %}
+          {{ mission.name }}
+        </option>
       {% endfor %}
     </select>
     <button name="run" onclick="admin.mission.select()">Select mission</button>

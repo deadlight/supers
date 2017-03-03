@@ -4,11 +4,11 @@ admin = {}
 admin.mission = {}
 
 admin.mission.selectedMission = {};
-// admin.mission.stage = {};
 admin.mission.team = [];
 
 admin.mission.glory = 0;
 
+// Select the mission for the current run
 admin.mission.select = function() {
   var missionId = $('.select-mission').val();
   $.getJSON('/api/v1/mission/' + missionId + '/?format=json', function(data) {
@@ -16,16 +16,18 @@ admin.mission.select = function() {
     console.log('Mission selected: ' + admin.mission.selectedMission.name + ', ' +admin.mission.selectedMission.id );
     admin.mission.refreshMissionInfo();
     $(".missions").addClass('hide');
-    //$.get('/admin/claim-mission/' + missionId);
+    $.get('/admin/claim-mission/' + missionId);
     admin.mission.chooseTeam();
   });
 }
 
+// Show the team choosing form
 admin.mission.chooseTeam = function() {
   $(".team").removeClass('hide');
   admin.mission.refreshMissionInfo();
 }
 
+// Add character to the mission team by ID
 admin.mission.addTeamMember = function(characterId) {
   $.getJSON('/api/v1/character/' + characterId + '/?format=json', function(data) {
     $(".select-team-member option[value=" + characterId + "]").remove();
@@ -36,6 +38,7 @@ admin.mission.addTeamMember = function(characterId) {
   });
 }
 
+// Start the selected mission with selected team
 admin.mission.startMission = function() {
   console.log('Mission ' + admin.mission.selectedMission.id + ' started');
   $.getJSON('/api/v1/stage/?format=json&mission=' + admin.mission.selectedMission.id + '&start_stage=true', function(data) {
@@ -45,6 +48,7 @@ admin.mission.startMission = function() {
   });
 }
 
+//load the form for a mission stage by stage id
 admin.mission.startStage = function(stageId) {
   $('.stages').load("/admin/stage/" + stageId, function(){
     admin.mission.showCharactersWithSkills(stageId);
@@ -52,6 +56,7 @@ admin.mission.startStage = function(stageId) {
   });
 }
 
+// Check if the stage's difficulty level has been met and update the buttons
 admin.mission.updateDifficulty = function(stageID) {
   if ((typeof stageID !== 'undefined')) {
     difficultyElement = $('.stage-' + stageID + '-difficulty');
@@ -72,6 +77,7 @@ admin.mission.updateDifficulty = function(stageID) {
   }
 }
 
+// Check if mission team characters have the requisite skills and provide inputs when they do
 admin.mission.showCharactersWithSkills = function(stage) {
   // Put character names and checkboxes next to the stage's required skills
   $.each(admin.mission.team, function(key, member) {
@@ -86,10 +92,12 @@ admin.mission.showCharactersWithSkills = function(stage) {
   });
 }
 
+// return the HTML for a checkbox for a skill use selecter
 admin.mission.generateSkillCheckbox = function(character, skill, skillNumber) {
   return '<input type="checkbox" class="usable-skill" data-character="' + character + '" data-skill="' + skill + '" data-skill-number="' + skillNumber + '" onchange="admin.mission.skillChecked(this);" />';
 }
 
+// handle when a skill use selected is checked/unchecked
 admin.mission.skillChecked = function(checkBox) {
   if ($(checkBox).is(':checked')) {
     //Skill selected
@@ -126,6 +134,7 @@ admin.mission.skillChecked = function(checkBox) {
   }
 }
 
+// Refresh the mission info panel
 admin.mission.refreshMissionInfo = function() {
   // Update mission name
   if (!$.isEmptyObject(admin.mission.selectedMission)) {
@@ -159,6 +168,7 @@ admin.mission.refreshMissionInfo = function() {
   }
 }
 
+// Update a character's running glory total for skill use
 admin.mission.updateGlory = function(memberID, modifier) {
   $.each(admin.mission.team, function(key, member) {
     if (member.id == memberID) {
@@ -168,11 +178,13 @@ admin.mission.updateGlory = function(memberID, modifier) {
   admin.mission.refreshMissionInfo();
 }
 
+// Update the glory running total for participation
 admin.mission.updateMissionGlory = function(glory) {
   admin.mission.glory += glory;
   admin.mission.refreshMissionInfo();
 }
 
+// Handle a stage being passed
 admin.mission.stagePassed = function(stageID) {
   //TODO: stage passed message!
   alert('STAGE PASSED INFO');
@@ -192,8 +204,9 @@ admin.mission.stagePassed = function(stageID) {
   });
 }
 
+// handle a stage being failed
 admin.mission.stageFailed = function(stageID) {
-  //TODO: stage passed message!
+  //TODO: stage failed message!
   alert('STAGE FAILED INFO')
   $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
     if (data.objects[0].news_on_failure != null) {
@@ -210,6 +223,7 @@ admin.mission.stageFailed = function(stageID) {
   });
 }
 
+// Handle a mission being passed
 admin.mission.passed = function() {
   console.log('MISSION PASSED!');
   $('.stages').load("/admin/pass-mission", function(){
@@ -262,19 +276,25 @@ admin.mission.passed = function() {
     // show teams' glory
     $.each(admin.mission.heroTeams, function(id, team) {
       $('.mission-passed .teams').append('<p>' + team.name + ' <input type="text" class="team-' + id + '-glory" value="' + team.missionGlory + '" /></p>');
+      $('.team-' + id).keyup(function(){
+        team.missionGlory = $(this).val();
+        $('.team-' + id).val = team.missionGlory;
+      });
     });
   });
 }
 
+// Save the outcomes and trigger events on a mission conclusion
 admin.mission.saveResult = function(success) {
   //Save individual glory & cooldown
   $.each(admin.mission.team, function(key, member) {
     //Save glory
-    newTotal = member.missionGlory + member.participationGlory;
-    if (success == true || newTotal < 0) {
-      $.get('/admin/update-character-glory/' + member.id + '/' + newTotal);
+    missionTotal = member.missionGlory + member.participationGlory;
+    if (success == true || missionTotal < 0) {
+      $.get('/admin/update-character-glory/' + member.id + '/' + missionTotal);
     }
 
+    //TODO: cooldown!
     //Save cooldown
     //if member has super speed or flight
       // reduced cooldown
@@ -283,30 +303,43 @@ admin.mission.saveResult = function(success) {
 
     if (success == true) {
       $.getJSON('/api/v1/stage/?format=json&id=' + admin.mission.currentStage, function(data) {
-        console.log(data.)
+        //console.log(data);
       });
     } else {
 
     }
   });
 
-  // save team glory (positive only if mission is successful)
+  //save team glory (positive only if mission is successful)
+  $.each(admin.mission.heroTeams, function(key, team) {
+    //Save glory
+    missionTotal = team.missionGlory;
+    if (success == true || missionTotal < 0) {
+      $.get('/admin/update-team-glory/' + key + '/' + missionTotal);
+    }
+  });
 
   // reduce mission repetitions by 1 if mission success
+  if (success == true) {
+    $.get('/admin/decrement-repetitions/' + admin.mission.selectedMission.id)
+  }
 
   // unclaim mission
   $.get('/admin/unclaim-mission/' + admin.mission.selectedMission.id);
 
-  // trigger missions on success/failure (with delay!)
+  // TODO: trigger missions on success/failure (with delay!)
 
-  // trigger news! success / fail
+
+  // TODO: trigger news! success / fail
 }
 
+// Handle a mission failure
 admin.mission.failed = function() {
   console.log('MISSION FAILED!');
   alert('MISSION FAILED');
 }
 
+// set a news item to appear
 admin.triggerNews = function(newsURL) {
   console.log('Trigger news')
 }

@@ -18,7 +18,7 @@ html {
   border: 1px solid red;
   margin: 10px;
   padding: 10px;
-  position: fixed;
+  position: absolute;
   right: 0;
   top: 0;
   width: 30vw;
@@ -76,4 +76,92 @@ input[type=text] {
 
 .failed.disabled {
   background-color: grey;
+}
+
+/* Map */
+.map {
+  background-color: #000;
+  color: #fff;
+}
+
+.map-image {
+  float: left;
+  max-height: 95vh;
+  max-width: 49vw;
+}
+
+.map-scores {
+  float: right;
+  max-height: 95vh;
+  width: 48vw;
+}
+
+.map-top-list {
+  border: 2px solid #990000;
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+/* News ticker */
+
+@-webkit-keyframes ticker {
+  0% {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  100% {
+    -webkit-transform: translate3d(-100%, 0, 0);
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+@keyframes ticker {
+  0% {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  100% {
+    -webkit-transform: translate3d(-100%, 0, 0);
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+.ticker-wrap {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  overflow: hidden;
+  height: 4rem;
+  background-color: #990000;
+  padding-left: 100%;  // offset items to begin
+}
+
+.news-ticker {
+  display: inline-block;
+  height: 4rem;
+  line-height: 4rem;
+  white-space: nowrap; // display items in a line
+  padding-right: 100%; // ensure items go before animations repeat (taken from parent due to inline-block)
+  -webkit-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  animation-timing-function: linear;
+  -webkit-animation-name: ticker;
+  animation-name: ticker;
+  -webkit-animation-duration: 30s;
+  animation-duration: 30s;
+}
+
+.news-ticker__item {
+
+  display: inline-block;
+
+  padding: 0 2rem;
+  font-size: 2rem;
+  color: white;
+
 }

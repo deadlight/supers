@@ -1,9 +1,27 @@
-MAP
+{% extends "_base.html" %}
 
-{% if news.all %}
-  <ul>
-    {% for item in news.all %}
-      <li>{{ item.content }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
+{% block extra_html_class %}map{% endblock %}
+
+{% block content %}
+  <img class="map-image" src="/static/img/city.png" alt="map of Crescent City" />
+  <div class="map-scores">
+    <div class="map-top-list map-top-characters">
+      <h2>Top heroes</h2>
+      <ol class="top-characters"></ol>
+    </div>
+    <div class="map-top-list map-top-teams">
+      <h2>Top teams</h2>
+      <ol class="top-teams"></ol>
+    </div>
+  </div>
+  <div class="ticker-wrap">
+    <div class="news-ticker">
+      {% if public_feed %}
+        {% for item in public_feed %}
+          <div class="news-ticker__item">{{ item.content }}</div>
+        {% endfor %}
+          <div class="news-ticker__item"> ++ CCNN: Crescent City News Network ++&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}
