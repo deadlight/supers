@@ -24,11 +24,17 @@
 
     <h2>Latest news</h2>
     {% if news %}
-      <ul>
+      <ul class="news-list">
         {% for item in news %}
           <li class="news-item news-{{ item.contact }}">{{ item.content }}</li>
         {% endfor %}
       </ul>
     {% endif %}
   </div>
+
+  <script>
+    window.setInterval(function(){
+      location.reload();
+    }, 60000);
+  </script>
 {% endblock %}

@@ -175,3 +175,16 @@ input[type=text] {
 .character .content {
   max-width: 500px;
 }
+
+.character .news-list {
+  margin: 0;
+  padding: 0;
+}
+
+.character .news-item {
+  border: 1px solid #990000;
+  display: block;
+  list-style: none;
+  margin: 5px 0;
+  padding: 10px;
+}

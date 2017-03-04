@@ -13,7 +13,7 @@ def CharacterSheet(request, slug):
         contacts = []
         for contact in character.contacts.all():
             contacts.append(contact.id)
-        news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts__in=contacts).extra(order_by=['-trigger_time']).all()
+        news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts__in=contacts).extra(order_by=['-trigger_time']).all()[:20]
 
         if character.cooldown < now():
             available = True
