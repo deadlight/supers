@@ -10,7 +10,10 @@ from math import floor
 def CharacterSheet(request, slug):
     try:
         character = Character.objects.get(slug=slug)
-        news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts=1).all() #TODO: filter properly by character's allowed news
+        contacts = []
+        for contact in character.contacts.all():
+            contacts.append(contact.id)
+        news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts__in=contacts).extra(order_by=['trigger_time']).all()
 
         if character.cooldown < now():
             available = True
@@ -35,7 +38,7 @@ def Map(request):
     })
 
 def RunMission(request):
-    mission_list = Mission.objects.filter(start_time__lte=now()).filter(end_time__gte=now()).all();
+    mission_list = Mission.objects.filter(start_time__lte=now()).filter(end_time__gte=now()).filter(claimed=False).filter(repetitions__gt=0).all();
 
     #TODO: filter by available mission - start time before now, not claimed and more than zero repetitions left
     character_list = Character.objects.filter().all()
