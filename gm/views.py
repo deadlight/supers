@@ -13,7 +13,7 @@ def CharacterSheet(request, slug):
         contacts = []
         for contact in character.contacts.all():
             contacts.append(contact.id)
-        news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts__in=contacts).extra(order_by=['trigger_time']).all()
+        news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts__in=contacts).extra(order_by=['-trigger_time']).all()
 
         if character.cooldown < now():
             available = True
@@ -32,15 +32,13 @@ def CharacterSheet(request, slug):
     })
 
 def Map(request):
-    public_feed = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts=1).all()
+    public_feed = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts=1).extra(order_by=['-trigger_time']).all()[:10]
     return render(request, 'map.html', {
         'public_feed': public_feed,
     })
 
 def RunMission(request):
     mission_list = Mission.objects.filter(start_time__lte=now()).filter(end_time__gte=now()).filter(claimed=False).filter(repetitions__gt=0).all();
-
-    #TODO: filter by available mission - start time before now, not claimed and more than zero repetitions left
     character_list = Character.objects.filter().all()
     return render(request, 'mission.html', {
         'mission_list': mission_list,
@@ -109,3 +107,21 @@ def DecrementRepetitions(request, mission_id):
         mission.repetitions -= 1;
     mission.save()
     return render(request, 'decrement-repetitions.html')
+
+def LatestNews(request):
+    public_feed = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts=1).extra(order_by=['-trigger_time']).all()[:10]
+    return render(request, 'news.html', {
+        'public_feed': public_feed,
+    })
+
+def TopHeroes(request):
+    top_heroes = Character.objects.extra(order_by=['-glory']).all()[:5]
+    return render(request, 'top-heroes.html', {
+        'top_heroes': top_heroes,
+    })
+
+def TopTeams(request):
+    top_teams = Team.objects.extra(order_by=['-glory']).all()[:5]
+    return render(request, 'top-teams.html', {
+        'top_teams': top_teams,
+    })

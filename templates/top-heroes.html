@@ -1,0 +1,5 @@
+{% if top_heroes %}
+  {% for hero in top_heroes %}
+    <li class="hero">{{ hero.name }} - {{ hero.glory }}</li>
+  {% endfor %}
+{% endif %}

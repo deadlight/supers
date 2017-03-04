@@ -7,7 +7,7 @@
   <div class="map-scores">
     <div class="map-top-list map-top-characters">
       <h2>Top heroes</h2>
-      <ol class="top-characters"></ol>
+      <ol class="top-heroes"></ol>
     </div>
     <div class="map-top-list map-top-teams">
       <h2>Top teams</h2>
@@ -24,4 +24,12 @@
       {% endif %}
     </div>
   </div>
+
+  <script>
+    window.setInterval(function(){
+      user.getTopCharacters('top-heroes');
+      user.getTopTeams('top-teams');
+      user.getNews('news-ticker');
+    }, 5000);
+  </script>
 {% endblock content %}

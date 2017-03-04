@@ -1,20 +1,18 @@
 var user = {};
 
 //Get top teams
-user.getTopTeams = function() {
-
+user.getTopTeams = function(listClass) {
+  $('.' + listClass).load('/top-teams');
 }
 
 //Get top characters
-user.getTopCharacters = function() {
-
+user.getTopCharacters = function(listClass) {
+  $('.' + listClass).load('/top-heroes');
 }
 
-//Get news
-user.getNews = function(channelParams) {
-  $.getJSON('/api/v1/news/?format=json&', function() {
-
-  });
+//Get news - output into list of provided class
+user.getNews = function(listClass) {
+  $('.' + listClass).load('/news');
 }
 
 //Get character stats

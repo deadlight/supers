@@ -1,6 +1,6 @@
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie import fields
-from gm.models import Character, News, Mission, Stage, Team, Skill, TeamCharacterLink
+from gm.models import Character, News, Mission, Stage, Team, Skill, TeamCharacterLink, Contact
 
 
 
@@ -22,6 +22,12 @@ class CharacterResource(ModelResource):
 class NewsResource(ModelResource):
     class Meta:
         queryset = News.objects.all()
+        filtering = {
+            'id': ALL,
+            'active': ALL,
+            'trigger_time': ALL,
+            'contacts': ALL,
+        }
 
 class MissionResource(ModelResource):
     class Meta:

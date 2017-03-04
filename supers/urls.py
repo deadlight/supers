@@ -32,6 +32,9 @@ v1_api.register(SkillResource())
 urlpatterns = [
     url(r'^character/(?P<slug>[\w-]+)/$', views.CharacterSheet),
     url(r'^map/', views.Map),
+    url(r'^news/', views.LatestNews),
+    url(r'^top-heroes/', views.TopHeroes),
+    url(r'^top-teams/', views.TopTeams),
     url(r'^admin/stage/(?P<stage_id>[\w-]+)/$', views.RunStage),
     url(r'^admin/mission/', views.RunMission),
     url(r'^admin/trigger-mission/(?P<mission_id>[\w-]+)/$', views.TriggerMission),
