@@ -4,7 +4,7 @@ from django.shortcuts import render
 from gm.models import Character, News, Mission, Stage, Team
 from django.db import models
 from django.shortcuts import get_object_or_404
-from django.utils.timezone import now
+from django.utils.timezone import now, timedelta
 from math import floor
 
 def CharacterSheet(request, slug):
@@ -39,7 +39,7 @@ def Map(request):
 
 def RunMission(request):
     mission_list = Mission.objects.filter(start_time__lte=now()).filter(end_time__gte=now()).filter(claimed=False).filter(repetitions__gt=0).all();
-    character_list = Character.objects.filter().all()
+    character_list = Character.objects.filter(cooldown__lte=now()).all()
     return render(request, 'mission.html', {
         'mission_list': mission_list,
         'character_list': character_list,
@@ -94,6 +94,14 @@ def updateCharacterGlory(request, character_id, glory):
     character.glory += int(glory)
     character.save()
     return render(request, 'glory-updated.html')
+
+def updateCharacterCooldown(request, character_id, cooldown):
+    character = get_object_or_404(Character, id=character_id)
+    if int(cooldown) < 0:
+        cooldown = 0
+    character.cooldown = now() + timedelta(minutes = int(cooldown))
+    character.save()
+    return render(request, 'cooldown-updated.html')
 
 def updateTeamGlory(request, team_id, glory):
     team = get_object_or_404(Team, id=team_id)

@@ -1,5 +1,7 @@
 {% extends "_base.html" %}
 
+{% block extra_html_class %}mission{% endblock %}
+
 {% block content %}
 
 <section class="mission-info sidebar">
@@ -30,7 +32,7 @@
     <h2>Select Team Members</h2>
     <select class="select-team-member" name="select-team-member">
       {% for character in character_list %}
-        <option class="select-team-member-{{ character.id }}" value="{{ character.id }}">{{ character.id }} | {{ character.name }} | {{ character.player }}</option>
+        <option {% if character.cooldown_time %}disabled="disabled" {% endif %}class="select-team-member-{{ character.id }}" value="{{ character.id }}">{{ character.id }} | {{ character.name }} | {{ character.player }}{% if character.cooldown_time %} | {{ character.cooldown_time }} {% endif %}</option>
       {% endfor %}
     </select>
     <button name="selectTeamMember" onclick="admin.mission.addTeamMember($('.select-team-member').val());">Add to mission</button>

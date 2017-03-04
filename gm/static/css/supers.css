@@ -6,6 +6,33 @@ html {
   display: none;
 }
 
+/* Misson */
+.mission {
+  background-color: #000;
+  color: #fff;
+}
+
+.mission .fudge {
+  height: 20px;
+  line-height: 1em;
+  margin-left: 3px;
+  margin-right: 3px;
+  width: 30px;
+}
+
+.mission .info-members {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mission-info-team-member {
+  list-style-type: none;
+    border-bottom: 1px solid #990000;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
 .used {
   text-decoration: line-through;
 }
@@ -15,7 +42,7 @@ html {
 }
 
 .sidebar {
-  border: 1px solid red;
+  border: 1px solid #990000;
   margin: 10px;
   padding: 10px;
   position: absolute;

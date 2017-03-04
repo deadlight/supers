@@ -152,7 +152,7 @@ admin.mission.refreshMissionInfo = function() {
       memberItem = $('<li></li>');
       memberItem.addClass('mission-info-team-member');
       memberItem.text(member.name);
-      memberGlory = $('<p class="member-glory">Mission glory: <button onclick="admin.mission.updateGlory(' + member.id + ',-1);">-1</button><span class="' + member.id + '">' + member.missionGlory + '</span><button onclick="admin.mission.updateGlory( ' + member.id + ',1);">+1</button></p>');
+      memberGlory = $('<p class="member-glory">Mission glory: <button class="fudge" onclick="admin.mission.updateGlory(' + member.id + ',-1);">-1</button><span class="' + member.id + '">' + member.missionGlory + '</span><button class="fudge" onclick="admin.mission.updateGlory( ' + member.id + ',1);">+1</button></p>');
       memberItem.append(memberGlory);
       skillsList = $('<ul></ul>');
       $.each(member.skills, function(key, skill) {
@@ -318,20 +318,32 @@ admin.mission.saveResult = function(success) {
       $.get('/admin/update-character-glory/' + member.id + '/' + missionTotal);
     }
 
-    //TODO: cooldown!
     //Save cooldown
-    //if member has super speed or flight
-      // reduced cooldown
-    // else
-      //normal cooldown
+    $.getJSON('/api/v1/stage/?format=json&id=' + admin.mission.currentStage, function(data) {
 
-    if (success == true) {
-      $.getJSON('/api/v1/stage/?format=json&id=' + admin.mission.currentStage, function(data) {
-        //console.log(data);
+      cooldownToSave = 15;
+
+      if (success == true) {
+        //get cooldown on success
+        if ($.isNumeric(data.cooldown_on_success)) {
+          cooldownToSave = data.cooldown_on_success;
+        }
+      } else {
+        //get cooldown on failure
+        if ($.isNumeric(data.cooldown_on_failure)) {
+          cooldownToSave = data.cooldown_on_failure;
+        }
+      }
+
+      $.each(member.skills, function(key, skill) {
+        //if member has super speed or flight
+        if (skill.name == 'Super Speed' || skill.name == 'Flight') {
+          cooldownToSave -= 5;
+        }
       });
-    } else {
-
-    }
+      //save cooldown
+      $.get('/admin/update-character-cooldown/' + member.id + '/' + cooldownToSave);
+    });
   });
 
   //save team glory (positive only if mission is successful)
