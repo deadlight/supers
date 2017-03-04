@@ -17,6 +17,7 @@ admin.mission.select = function() {
     admin.mission.refreshMissionInfo();
     $(".missions").addClass('hide');
     $.get('/admin/claim-mission/' + missionId);
+    admin.mission.won = false;
     admin.mission.chooseTeam();
   });
 }
@@ -40,6 +41,15 @@ admin.mission.addTeamMember = function(characterId) {
 
 // Start the selected mission with selected team
 admin.mission.startMission = function() {
+  //Get the bonus stage if it exists
+  admin.mission.selectedMission.bonus = null;
+  $.getJSON('/api/v1/stage/?format=json&mission=' + admin.mission.selectedMission.id + '&bonus=true', function(data) {
+    if (data.objects[0].id) {
+      admin.mission.selectedMission.bonus = data.objects[0].id;
+      admin.mission.refreshMissionInfo();
+    }
+  });
+
   console.log('Mission ' + admin.mission.selectedMission.id + ' started');
   $.getJSON('/api/v1/stage/?format=json&mission=' + admin.mission.selectedMission.id + '&start_stage=true', function(data) {
     admin.mission.startStage(data.objects[0].id);
@@ -198,7 +208,22 @@ admin.mission.handleStagePassed = function(stageID) {
         admin.mission.startStage(nextData.id);
       });
     } else {
-      admin.mission.passed();
+      admin.mission.won = true;
+      //check for bonus!
+      console.log('checking for bonus');
+      if (admin.mission.selectedMission.bonus == null) {
+        //No bonus mission, just pass the mission
+
+        console.log('No bonus');
+        admin.mission.passed();
+      } else {
+        //Offer bonus mission
+        console.log('Bonus');
+        $('.stages').load("/admin/offer-bonus/" + admin.mission.selectedMission.bonus, function(){
+          //remove the bonus flag
+          admin.mission.selectedMission.bonus = null;
+        });
+      }
     }
   });
 }
@@ -313,66 +338,70 @@ admin.mission.passed = function() {
 
 // Handle a mission failure
 admin.mission.failed = function() {
-  console.log('MISSION FAILED!');
-  $('.stages').load("/admin/fail-mission", function(){
-    admin.mission.heroTeams = {};
+  if (admin.mission.won == true) {
+    admin.mission.passed();
+  } else {
+    console.log('MISSION FAILED!');
+    $('.stages').load("/admin/fail-mission", function(){
+      admin.mission.heroTeams = {};
 
-    // show characters' glory (participation glory + powers used glory) ONLY NEGATIVES!
-    var characterSummary = $('.mission-failed .characters');
-    $.each(admin.mission.team, function(key, member) {
-      member.participationGlory = admin.mission.glory < 0 ? admin.mission.glory : 0;
-      if (member.missionGlory >= 0) {
-        member.missionGlory = 0;
-      }
-      var totalGlory = member.missionGlory + member.participationGlory ;
+      // show characters' glory (participation glory + powers used glory) ONLY NEGATIVES!
+      var characterSummary = $('.mission-failed .characters');
+      $.each(admin.mission.team, function(key, member) {
+        member.participationGlory = admin.mission.glory < 0 ? admin.mission.glory : 0;
+        if (member.missionGlory >= 0) {
+          member.missionGlory = 0;
+        }
+        var totalGlory = member.missionGlory + member.participationGlory ;
 
-      var characterItem = $('<p></p>');
-      characterItem.append(member.name);
-      var missionGloryElement = $('<input data-id="' + member.id + '" type="text" class="skill-glory-' + member.id +'" value="' + member.missionGlory + '" />');
+        var characterItem = $('<p></p>');
+        characterItem.append(member.name);
+        var missionGloryElement = $('<input data-id="' + member.id + '" type="text" class="skill-glory-' + member.id +'" value="' + member.missionGlory + '" />');
 
-      var participationGloryElement = $('<input data-id="' + member.id + '" type="text" class="participation-glory-' + member.id + '" value="' + member.participationGlory + '" />');
+        var participationGloryElement = $('<input data-id="' + member.id + '" type="text" class="participation-glory-' + member.id + '" value="' + member.participationGlory + '" />');
 
-      characterItem.append(missionGloryElement);
-      characterItem.append(' + ');
-      characterItem.append(participationGloryElement);
-      characterItem.append(' = <span class="total-glory-' + member.id + '">' + totalGlory + '</span>');
-      characterSummary.append(characterItem);
+        characterItem.append(missionGloryElement);
+        characterItem.append(' + ');
+        characterItem.append(participationGloryElement);
+        characterItem.append(' = <span class="total-glory-' + member.id + '">' + totalGlory + '</span>');
+        characterSummary.append(characterItem);
 
-      $('.skill-glory-' + member.id).keyup(function(){
-        member.missionGlory = $(this).val();
-        $('.total-glory-' + member.id).text(Number(member.missionGlory) + Number(member.participationGlory));
-      });
+        $('.skill-glory-' + member.id).keyup(function(){
+          member.missionGlory = $(this).val();
+          $('.total-glory-' + member.id).text(Number(member.missionGlory) + Number(member.participationGlory));
+        });
 
-      $('.participation-glory-' + member.id).keyup(function(){
-        member.participationGlory = $(this).val();
-        $('.total-glory-' + member.id).text(Number(member.missionGlory) + Number(member.participationGlory));
-      });
+        $('.participation-glory-' + member.id).keyup(function(){
+          member.participationGlory = $(this).val();
+          $('.total-glory-' + member.id).text(Number(member.missionGlory) + Number(member.participationGlory));
+        });
 
-      //If the member is in a team minus 1 from that team's score
-      if (!member.team.length == 0) {
-        //Member is in a team
-        if (member.team[0].id in admin.mission.heroTeams) {
-          //An entry for this team already exists
-          admin.mission.heroTeams[member.team[0].id].missionGlory--;
-        } else {
-          //There is no entry for this team
-          admin.mission.heroTeams[member.team[0].id] = {
-            'name': member.team[0].name,
-            'missionGlory': -1
+        //If the member is in a team minus 1 from that team's score
+        if (!member.team.length == 0) {
+          //Member is in a team
+          if (member.team[0].id in admin.mission.heroTeams) {
+            //An entry for this team already exists
+            admin.mission.heroTeams[member.team[0].id].missionGlory--;
+          } else {
+            //There is no entry for this team
+            admin.mission.heroTeams[member.team[0].id] = {
+              'name': member.team[0].name,
+              'missionGlory': -1
+            }
           }
         }
-      }
-    });
+      });
 
-    // show teams' glory
-    $.each(admin.mission.heroTeams, function(id, team) {
-      $('.mission-failed .teams').append('<p>' + team.name + ' <input type="text" class="team-' + id + '-glory" value="' + team.missionGlory + '" /></p>');
-      $('.team-' + id).keyup(function(){
-        team.missionGlory = $(this).val();
-        $('.team-' + id).val = team.missionGlory;
+      // show teams' glory
+      $.each(admin.mission.heroTeams, function(id, team) {
+        $('.mission-failed .teams').append('<p>' + team.name + ' <input type="text" class="team-' + id + '-glory" value="' + team.missionGlory + '" /></p>');
+        $('.team-' + id).keyup(function(){
+          team.missionGlory = $(this).val();
+          $('.team-' + id).val = team.missionGlory;
+        });
       });
     });
-  });
+  }
 }
 
 // Save the outcomes and trigger events on a mission conclusion
@@ -487,9 +516,4 @@ admin.triggerNews = function(newsURL) {
     console.log('working')
     $.get('/admin/trigger-news/' + data.id);
   });
-}
-
-// Trigger mission
-admin.triggerMission = function(missionId, delay) {
-  //TODO: implement trigger mission
 }

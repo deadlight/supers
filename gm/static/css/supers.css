@@ -58,12 +58,14 @@ input[type=checkbox] {
 button {
   height: 40px;
   line-height: 36px;
+  font-size: 1.1em;
 }
 
 select {
   height: 40px;
   line-height: 40px;
   width: 300px;
+  font-size: 1.1em;
 }
 
 input[type=text] {

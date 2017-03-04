@@ -41,8 +41,7 @@ class Mission(BaseModel):
     end_time = DateTimeField(null=True, blank=True)
     minutes_to_run = IntegerField(help_text="How long should the mission be available?")
     codeword = CharField(max_length=255, help_text="Secret code required for some missions", null=True, blank=True)
-    contact = ManyToManyField(Contact, blank=True)
-    news_message = TextField(help_text="Mission info displayed in news feeds")
+    news_on_trigger = ManyToManyField("News", related_name="news_on_trigger", blank=True, help_text="Secret code required for some missions")
     on_success = ForeignKey(
         "Mission",
         related_name="mission_on_success",
@@ -73,6 +72,7 @@ class Stage(BaseModel):
     glory_on_failure = IntegerField()
     start_stage = BooleanField()
     showdown = BooleanField()
+    bonus = BooleanField()
     news_on_success = ManyToManyField("News", related_name="news_on_success", blank=True)
     news_on_failure = ManyToManyField("News", related_name="news_on_failure", blank=True)
     cooldown_on_success = IntegerField(null=True, blank=True)
@@ -102,6 +102,7 @@ class TeamCharacterLink(Model):
     team = ForeignKey('Team')
 
 class Team(BaseModel):
+    leader = ForeignKey(Character, related_name="leader")
     members = ManyToManyField(Character, through='TeamCharacterLink')
     glory = IntegerField(default=0)
 

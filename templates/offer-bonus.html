@@ -1,0 +1,4 @@
+<h2 class="title">Bonus stage!</h2>
+<p>Do you want to attempt the bonus stage {{ stage.name }}</p>
+<p>{{ stage.description }}</p>
+<p><button class="no" onclick="admin.mission.passed();">No</button><button class="yes" onclick="admin.mission.startStage({{ stage.id }});">Yes</button></p>

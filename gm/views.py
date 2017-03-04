@@ -14,6 +14,7 @@ def CharacterSheet(request, slug):
         for contact in character.contacts.all():
             contacts.append(contact.id)
         news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts__in=contacts).extra(order_by=['-trigger_time']).all()[:20]
+        team = Team.objects.get(members=character.id)
 
         if character.cooldown < now():
             available = True
@@ -29,6 +30,7 @@ def CharacterSheet(request, slug):
         'news': news,
         'available': available,
         'time_to_available': time_to_available,
+        'team': team,
     })
 
 def Map(request):
@@ -51,6 +53,12 @@ def RunStage(request, stage_id):
         'stage': stage,
     })
 
+def OfferBonus(request, stage_id):
+    stage = Stage.objects.get(id=stage_id)
+    return render(request, 'offer-bonus.html', {
+        'stage': stage,
+    })
+
 def MissionDash(request):
     mission_list = Mission.objects.filter().all()
     return render(request, 'mission-dash.html', {
@@ -62,6 +70,11 @@ def TriggerMission(request, mission_id, delay):
     mission = get_object_or_404(Mission, id=mission_id)
     mission.start_time = now()  + timedelta(minutes = int(delay))
     mission.end_time = now() + timedelta(minutes = int(delay) + mission.minutes_to_run)
+    news_to_trigger = mission.news_on_trigger.all()[0]
+    if mission.news_on_trigger:
+        news_item = get_object_or_404(News, id=news_to_trigger.id)
+        news_item.trigger_time = now()
+        news_item.save()
     mission.save()
     return render(request, 'trigger-mission.html')
 

@@ -52,6 +52,7 @@ class StageResource(ModelResource):
             'mission': ALL,
             'start_stage': ALL,
             'id': ALL,
+            'bonus': ALL,
         }
 
 class TeamResource(ModelResource):

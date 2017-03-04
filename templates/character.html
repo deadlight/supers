@@ -7,6 +7,13 @@
     <h1 class="title">{{ character.name }}</h1>
     <p>Player: {{ character.player }} | ID: {{ character.id }}</p>
     <h2>Glory: <span class="glory">{{ character.glory }}</span></h2>
+    {% if team %}
+      <h2>Team:</h2>
+      <p>{{ team.name }} (Glory: {{ team.glory }})</p>
+      {% if team.leader.name == character.name %}
+        <p>You are the team leader</p>
+      {% endif %}
+    {% endif %}
     <h2>Available for mission?</h2>
     <p class="available">
       {% if available %}
