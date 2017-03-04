@@ -30,8 +30,13 @@ class NewsResource(ModelResource):
         }
 
 class MissionResource(ModelResource):
+    on_success = fields.ForeignKey('self', 'on_success', null=True)
+    on_failure = fields.ForeignKey('self', 'on_failure', null=True)
     class Meta:
         queryset = Mission.objects.all()
+        filtering = {
+            'id': ALL,
+        }
 
 class StageResource(ModelResource):
     mission = fields.ForeignKey(MissionResource, 'mission', full=True)

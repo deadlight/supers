@@ -57,17 +57,18 @@ def MissionDash(request):
         'mission_list': mission_list,
     })
 
-def TriggerMission(request, mission_id):
+def TriggerMission(request, mission_id, delay):
     #make mission available
     mission = get_object_or_404(Mission, id=mission_id)
-    mission.start_time = datetime.now()
+    mission.start_time = now()  + timedelta(minutes = int(delay))
+    mission.end_time = now() + timedelta(minutes = int(delay) + mission.minutes_to_run)
     mission.save()
     return render(request, 'trigger-mission.html')
 
 def TriggerNews(request, news_id):
     #set news item live
     news_item = get_object_or_404(News, id=news_id)
-    news_item.trigger_time = datetime.now()
+    news_item.trigger_time = now()
     news_item.save()
     return render(request, 'trigger-news.html')
 

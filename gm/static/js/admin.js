@@ -189,8 +189,9 @@ admin.mission.handleStagePassed = function(stageID) {
   $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
     if (data.objects[0].news_on_success != null) {
       admin.triggerNews(data.objects[0].news_on_success);
-      admin.mission.updateMissionGlory(data.objects[0].glory_on_success);
     }
+
+    admin.mission.updateMissionGlory(data.objects[0].glory_on_success);
 
     if (data.objects[0].on_success != null) {
       $.getJSON(data.objects[0].on_success, function(nextData) {
@@ -222,6 +223,8 @@ admin.mission.handleStageFailed = function(stageID) {
     if (data.objects[0].news_on_failure != null) {
       admin.triggerNews(data.objects[0].news_on_failure);
     }
+
+    admin.mission.updateMissionGlory(data.objects[0].glory_on_failure);
 
     if (data.objects[0].on_failure != null) {
       $.getJSON(data.objects[0].on_failure, function(nextData) {
@@ -308,6 +311,70 @@ admin.mission.passed = function() {
   });
 }
 
+// Handle a mission failure
+admin.mission.failed = function() {
+  console.log('MISSION FAILED!');
+  $('.stages').load("/admin/fail-mission", function(){
+    admin.mission.heroTeams = {};
+
+    // show characters' glory (participation glory + powers used glory) ONLY NEGATIVES!
+    var characterSummary = $('.mission-failed .characters');
+    $.each(admin.mission.team, function(key, member) {
+      member.participationGlory = admin.mission.glory < 0 ? admin.mission.glory : 0;
+      if (member.missionGlory >= 0) {
+        member.missionGlory = 0;
+      }
+      var totalGlory = member.missionGlory + member.participationGlory ;
+
+      var characterItem = $('<p></p>');
+      characterItem.append(member.name);
+      var missionGloryElement = $('<input data-id="' + member.id + '" type="text" class="skill-glory-' + member.id +'" value="' + member.missionGlory + '" />');
+
+      var participationGloryElement = $('<input data-id="' + member.id + '" type="text" class="participation-glory-' + member.id + '" value="' + member.participationGlory + '" />');
+
+      characterItem.append(missionGloryElement);
+      characterItem.append(' + ');
+      characterItem.append(participationGloryElement);
+      characterItem.append(' = <span class="total-glory-' + member.id + '">' + totalGlory + '</span>');
+      characterSummary.append(characterItem);
+
+      $('.skill-glory-' + member.id).keyup(function(){
+        member.missionGlory = $(this).val();
+        $('.total-glory-' + member.id).text(Number(member.missionGlory) + Number(member.participationGlory));
+      });
+
+      $('.participation-glory-' + member.id).keyup(function(){
+        member.participationGlory = $(this).val();
+        $('.total-glory-' + member.id).text(Number(member.missionGlory) + Number(member.participationGlory));
+      });
+
+      //If the member is in a team minus 1 from that team's score
+      if (!member.team.length == 0) {
+        //Member is in a team
+        if (member.team[0].id in admin.mission.heroTeams) {
+          //An entry for this team already exists
+          admin.mission.heroTeams[member.team[0].id].missionGlory--;
+        } else {
+          //There is no entry for this team
+          admin.mission.heroTeams[member.team[0].id] = {
+            'name': member.team[0].name,
+            'missionGlory': -1
+          }
+        }
+      }
+    });
+
+    // show teams' glory
+    $.each(admin.mission.heroTeams, function(id, team) {
+      $('.mission-failed .teams').append('<p>' + team.name + ' <input type="text" class="team-' + id + '-glory" value="' + team.missionGlory + '" /></p>');
+      $('.team-' + id).keyup(function(){
+        team.missionGlory = $(this).val();
+        $('.team-' + id).val = team.missionGlory;
+      });
+    });
+  });
+}
+
 // Save the outcomes and trigger events on a mission conclusion
 admin.mission.saveResult = function(success) {
   //Save individual glory & cooldown
@@ -335,14 +402,16 @@ admin.mission.saveResult = function(success) {
         }
       }
 
+      playerCooldown = cooldownToSave;
       $.each(member.skills, function(key, skill) {
         //if member has super speed or flight
         if (skill.name == 'Super Speed' || skill.name == 'Flight') {
-          cooldownToSave -= 5;
+          playerCooldown -= 5;
         }
       });
+
       //save cooldown
-      $.get('/admin/update-character-cooldown/' + member.id + '/' + cooldownToSave);
+      $.get('/admin/update-character-cooldown/' + member.id + '/' + playerCooldown);
     });
   });
 
@@ -363,17 +432,41 @@ admin.mission.saveResult = function(success) {
   // unclaim mission
   $.get('/admin/unclaim-mission/' + admin.mission.selectedMission.id);
 
-  // TODO: trigger missions on success/failure (with delay!)
+  //trigger missions on success/failure and end mission
+  missionToTrigger = null;
+  missionDelay = 0;
+  if (success == true) {
+    if (admin.mission.selectedMission.on_success != null) {
+      missionToTrigger = admin.mission.selectedMission.on_success;
+      if (admin.mission.selectedMission.on_success_delay != null) {
+        missionDelay = admin.mission.selectedMission.on_success_delay;
+      }
+    }
+  } else {
+    if (admin.mission.selectedMission.on_failure != null) {
+      missionToTrigger = admin.mission.selectedMission.on_failure;
+      if (admin.mission.selectedMission.on_failure_delay != null) {
+        missionDelay = admin.mission.selectedMission.on_failure_delay;
+      }
+    }
+  }
 
-
-  // TODO: trigger news! success / fail
-}
-
-// Handle a mission failure
-admin.mission.failed = function() {
-  // TODO: handle mission failed
-  console.log('MISSION FAILED!');
-  alert('MISSION FAILED');
+  if (missionToTrigger == null) {
+    //unclaim and refresh page
+    $.get('/admin/unclaim-mission/' + admin.mission.selectedMission.id, function(){
+      location.reload();
+    });
+  } else {
+    //trigger mission
+    $.getJSON(missionToTrigger, function(data) {
+      $.get('/admin/trigger-mission/' + data.id + '/' + missionDelay, function() {
+        //unclaim and refresh page
+        $.get('/admin/unclaim-mission/' + admin.mission.selectedMission.id, function(){
+          location.reload();
+        });
+      });
+    });
+  }
 }
 
 // cancel and reset current mission
@@ -389,8 +482,11 @@ admin.mission.cancel = function() {
 
 // set a news item to appear
 admin.triggerNews = function(newsURL) {
-  //TODO: handle trigger news
   console.log('Trigger news')
+  $.getJSON(newsURL, function(data){
+    console.log('working')
+    $.get('/admin/trigger-news/' + data.id);
+  });
 }
 
 // Trigger mission

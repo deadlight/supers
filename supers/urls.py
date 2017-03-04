@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^top-teams/', views.TopTeams),
     url(r'^admin/stage/(?P<stage_id>[\w-]+)/$', views.RunStage),
     url(r'^admin/mission/', views.RunMission),
-    url(r'^admin/trigger-mission/(?P<mission_id>[\w-]+)/$', views.TriggerMission),
+    url(r'^admin/trigger-mission/(?P<mission_id>\d+)/(?P<delay>-?\d+)/$', views.TriggerMission),
     url(r'^admin/decrement-repetitions/(?P<mission_id>[\w-]+)/$', views.DecrementRepetitions),
     url(r'^admin/pass-mission/', views.PassMission),
     url(r'^admin/fail-mission/', views.FailMission),

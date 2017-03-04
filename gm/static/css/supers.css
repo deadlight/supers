@@ -1,5 +1,6 @@
 html {
   font-family: arial, helvetica, sans-serif;
+  font-size: 18px;
 }
 
 .hide {
@@ -37,9 +38,7 @@ html {
   text-decoration: line-through;
 }
 
-.content {
-  width: 60vw;
-}
+
 
 .sidebar {
   border: 1px solid #990000;
@@ -81,6 +80,25 @@ input[type=text] {
 }
 
 /* stage buttons */
+
+.mission .content {
+  width: 60vw;
+}
+
+.mission input[type=checkbox] {
+  margin-left: 10px;
+}
+
+.mission .required-skills {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mission .required-skills h4 {
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
 
 .stage-button {
   font-size: 24px;
