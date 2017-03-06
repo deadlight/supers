@@ -38,8 +38,6 @@ html {
   text-decoration: line-through;
 }
 
-
-
 .sidebar {
   border: 1px solid #990000;
   margin: 10px;
@@ -57,7 +55,6 @@ input[type=checkbox] {
 
 button {
   height: 40px;
-  line-height: 36px;
   font-size: 1.1em;
 }
 
@@ -123,6 +120,27 @@ input[type=text] {
 
 .failed.disabled {
   background-color: grey;
+}
+
+/* Homepage */
+.home {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  background-color: #000;
+}
+
+/* Fudge */
+.fudge {
+  background-color: #000;
+  color: #fff;
+}
+
+.fudge .box {
+  margin: 20px;
+  padding: 10px 20px;
+  border: 1px solid #990000;
 }
 
 /* Map */

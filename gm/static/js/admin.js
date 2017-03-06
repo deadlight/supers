@@ -517,3 +517,22 @@ admin.triggerNews = function(newsURL) {
     $.get('/admin/trigger-news/' + data.id);
   });
 }
+
+// Register superior
+admin.registerSuperior = function(id) {
+  $.get('/admin/register/' + id, function(){
+    alert(id + ' registered');
+  });
+}
+
+admin.wipeCooldown = function(id) {
+  $.get('/admin/update-character-cooldown/' + id + '/0', function() {
+    alert('player ' + id + ' cooldown reset');
+  });
+}
+
+admin.UnclaimMission = function(id){
+  $.get('/admin/unclaim-mission/' + id, function(){
+
+  });
+};

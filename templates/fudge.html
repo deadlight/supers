@@ -1,0 +1,39 @@
+{% extends "_base.html" %}
+
+{% block extra_html_class %}fudge{% endblock %}
+
+{% block content %}
+
+<div class="box register">
+  <h2>Register superior</h2>
+  <select class="register-superior" name="register-superior">
+    {% for character in character_list %}
+      <option class="register-superior-{{ character.id }}" value="{{ character.id }}">{{ character.id }} | {{ character.name }} | {{ character.player }}</option>
+    {% endfor %}
+  </select>
+  <button onclick="admin.registerSuperior($('.register-superior').val());">Register</button>
+</div>
+
+<div class="box">
+  <h2>Reset superior's cooldown</h2>
+  <p>They will be free to join missions immediately</p>
+  <select class="reset-cooldown" name="reset-cooldown">
+    {% for character in character_list %}
+      <option class="reset-cooldown-{{ character.id }}" value="{{ character.id }}">{{ character.id }} | {{ character.name }} | {{ character.player }}</option>
+    {% endfor %}
+  </select>
+  <button onclick="admin.wipeCooldown($('.reset-cooldown').val());">Reset</button>
+</div>
+
+<div class="box">
+  <h2>Unclaim mission</h2>
+  <p>Free up a claimed mission - DO NOT do this is the mission is in progress elsewhere</p>
+  <select class="unclaim-mission" name="unclaim-mission">
+    {% for mission in mission_list %}
+      <option class="unclaim-mission-{{ mission.id }}" value="{{ mission.id }}">{{ mission.id }} | {{ mission.name }} | {{ mission.codeword }}</option>
+    {% endfor %}
+  </select>
+  <button onclick="admin.unclaimMission($('.unclaim-mission').val());">Unclaim</button>
+</div>
+
+{% endblock %}

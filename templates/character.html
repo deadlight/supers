@@ -5,7 +5,7 @@
 {% block content %}
   <div class="content">
     <h1 class="title">{{ character.name }}</h1>
-    <p>Player: {{ character.player }} | ID: {{ character.id }}</p>
+    <p>Player: {{ character.player }} | ID: {{ character.id }} | {% if character.registered %}Registered superior{% else %}Unregistered superior{% endif %}</p>
     <h2>Glory: <span class="glory">{{ character.glory }}</span></h2>
     {% if team %}
       <h2>Team:</h2>

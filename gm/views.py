@@ -14,7 +14,10 @@ def CharacterSheet(request, slug):
         for contact in character.contacts.all():
             contacts.append(contact.id)
         news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts__in=contacts).extra(order_by=['-trigger_time']).all()[:20]
-        team = Team.objects.get(members=character.id)
+        # try:
+        #     team = Team.objects.get(members=character.id).first()
+        # except Team.DoesNotExist:
+        #     team = None;
 
         if character.cooldown < now():
             available = True
@@ -30,7 +33,7 @@ def CharacterSheet(request, slug):
         'news': news,
         'available': available,
         'time_to_available': time_to_available,
-        'team': team,
+        # 'team': team,
     })
 
 def Map(request):
@@ -147,3 +150,20 @@ def TopTeams(request):
     return render(request, 'top-teams.html', {
         'top_teams': top_teams,
     })
+
+def Homepage(request):
+    return render(request, 'homepage.html')
+
+def Fudge(request):
+    character_list = Character.objects.filter().all()
+    mission_list = Mission.objects.filter().all()
+    return render(request, 'fudge.html', {
+        'character_list': character_list,
+        'mission_list': mission_list,
+    })
+
+def RegisterSuperior(request, character_id):
+    character = get_object_or_404(Character, id=character_id)
+    character.registered = True
+    character.save()
+    return render(request, 'registered.html')
