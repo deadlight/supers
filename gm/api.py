@@ -16,7 +16,8 @@ class CharacterResource(ModelResource):
         queryset = Character.objects.all()
         resource_name = 'character'
         filtering = {
-            'player': ALL
+            'player': ALL,
+            'registered': ALL,
         }
 
 class NewsResource(ModelResource):
