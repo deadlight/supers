@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^admin/stage/(?P<stage_id>\d+)', views.RunStage),
     url(r'^admin/offer-bonus/(?P<stage_id>\d+)', views.OfferBonus),
     url(r'^admin/mission/', views.RunMission),
+    url(r'^admin/mission-dash/', views.MissionDash),
     url(r'^admin/trigger-mission/(?P<mission_id>\d+)/(?P<delay>-?\d+)/$', views.TriggerMission),
     url(r'^admin/decrement-repetitions/(?P<mission_id>[\w-]+)/$', views.DecrementRepetitions),
     url(r'^admin/pass-mission/', views.PassMission),

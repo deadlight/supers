@@ -1,1 +1,13 @@
-MISSION DASHBOARD
+{% extends "_base.html" %}
+
+{% block extra_html_class %}mission{% endblock %}
+
+{% block content %}
+
+{% if mission_list %}
+  {% for mission in mission_list %}
+    <div class="">{{ mission.name }}</div>
+  {% endfor %}
+{% endif %}
+
+{% endblock %}
