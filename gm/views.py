@@ -14,6 +14,7 @@ def CharacterSheet(request, slug):
         for contact in character.contacts.all():
             contacts.append(contact.id)
         news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts__in=contacts).extra(order_by=['-trigger_time']).all()[:20]
+        # TODO: fix this for teams with one member
         # try:
         #     team = Team.objects.get(members=character.id).first()
         # except Team.DoesNotExist:
@@ -43,7 +44,7 @@ def Map(request):
     })
 
 def RunMission(request):
-    mission_list = Mission.objects.filter(start_time__lte=now()).filter(end_time__gte=now()).filter(claimed=False).filter(repetitions__gt=0).all();
+    mission_list = Mission.objects.filter(active=True).filter(claimed=False).filter(repetitions__gt=0).all();
     character_list = Character.objects.filter(cooldown__lte=now()).all()
     return render(request, 'mission.html', {
         'mission_list': mission_list,
@@ -63,21 +64,16 @@ def OfferBonus(request, stage_id):
     })
 
 def MissionDash(request):
-    mission_list = Mission.objects.filter().all()
+    mission_list = Mission.objects.filter().order_by('name').all()
     return render(request, 'mission-dash.html', {
         'mission_list': mission_list,
     })
 
-def TriggerMission(request, mission_id, delay):
+def TriggerMission(request, mission_id):
     #make mission available
     mission = get_object_or_404(Mission, id=mission_id)
-    mission.start_time = now()  + timedelta(minutes = int(delay))
-    mission.end_time = now() + timedelta(minutes = int(delay) + mission.minutes_to_run)
-    news_to_trigger = mission.news_on_trigger.all()[0]
-    if mission.news_on_trigger:
-        news_item = get_object_or_404(News, id=news_to_trigger.id)
-        news_item.trigger_time = now()
-        news_item.save()
+    mission.active = True
+    mission.claimed = False
     mission.save()
     return render(request, 'trigger-mission.html')
 
@@ -167,3 +163,15 @@ def RegisterSuperior(request, character_id):
     character.registered = True
     character.save()
     return render(request, 'registered.html')
+
+def ActivateMission(request, mission_id):
+    mission = get_object_or_404(Mission, id=mission_id)
+    mission.active = True
+    mission.save()
+    return render(request, 'trigger-mission.html')
+
+def DeactivateMission(request, mission_id):
+    mission = get_object_or_404(Mission, id=mission_id)
+    mission.active = False
+    mission.save()
+    return render(request, 'trigger-mission.html')

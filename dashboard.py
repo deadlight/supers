@@ -31,9 +31,9 @@ class CustomIndexDashboard(Dashboard):
             deletable=False,
             collapsible=False,
             children=[
-                [_('Create Missions'), '/admin/gm/mission/'],
-                [_('Complete Stages'), '/admin/gm/stage/'],
-                [_('Team Management'), '/admin/gm/team/'],
+                [_('Mission dashboard'), '/admin/mission-dash/'],
+                [_('Create missions'), '/admin/gm/mission/'],
+                [_('Manage teams'), '/admin/gm/team/'],
             ]
         ))
 

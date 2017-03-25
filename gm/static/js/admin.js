@@ -467,16 +467,10 @@ admin.mission.saveResult = function(success) {
   if (success == true) {
     if (admin.mission.selectedMission.on_success != null) {
       missionToTrigger = admin.mission.selectedMission.on_success;
-      if (admin.mission.selectedMission.on_success_delay != null) {
-        missionDelay = admin.mission.selectedMission.on_success_delay;
-      }
     }
   } else {
     if (admin.mission.selectedMission.on_failure != null) {
       missionToTrigger = admin.mission.selectedMission.on_failure;
-      if (admin.mission.selectedMission.on_failure_delay != null) {
-        missionDelay = admin.mission.selectedMission.on_failure_delay;
-      }
     }
   }
 
@@ -488,7 +482,7 @@ admin.mission.saveResult = function(success) {
   } else {
     //trigger mission
     $.getJSON(missionToTrigger, function(data) {
-      $.get('/admin/trigger-mission/' + data.id + '/' + missionDelay, function() {
+      $.get('/admin/trigger-mission/' + data.id, function() {
         //unclaim and refresh page
         $.get('/admin/unclaim-mission/' + admin.mission.selectedMission.id, function(){
           location.reload();
@@ -534,5 +528,17 @@ admin.wipeCooldown = function(id) {
 admin.UnclaimMission = function(id){
   $.get('/admin/unclaim-mission/' + id, function(){
 
+  });
+};
+
+admin.activateMission = function(id){
+  $.get('/admin/activate-mission/' + id, function(){
+    location.reload();
+  });
+};
+
+admin.deactivateMission = function(id){
+  $.get('/admin/deactivate-mission/' + id, function(){
+      location.reload();
   });
 };

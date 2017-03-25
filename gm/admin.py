@@ -94,31 +94,8 @@ class SkillAdmin(admin.ModelAdmin):
 class ContactAdmin(admin.ModelAdmin):
     pass
 
-
-def make_published(modeladmin, request, queryset):
-    # queryset.update(status='p')
-    for stage in queryset:
-        if not stage.current_characters.all():
-            messages.error(request, 'NO CHARACTERS IN STAGE.')
-            return
-        team_size = len(stage.current_characters.all())
-        glory_each = int(stage.glory_on_success / team_size)
-        for character in stage.current_characters.all():
-            character.glory = character.glory + glory_each
-            if character.team_members.all():
-                team = character.team_members.all()[0]
-                team.glory = team.glory + glory_each
-                team.save()
-            character.save()
-        stage.current_characters.clear()
-        messages.success(request, 'Stage "%s" completed, glory allocated.' % stage.name)
-        # TODO: Add cooldown to chars here
-
-make_published.short_description = "Complete stage"
-
-
 class StageAdmin(admin.ModelAdmin):
-    actions = [make_published]
+    pass
 
 
 class TeamAdmin(admin.ModelAdmin):

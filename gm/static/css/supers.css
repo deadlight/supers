@@ -1,6 +1,17 @@
 html {
+  background-color: #000;
+  color: #fff;
   font-family: arial, helvetica, sans-serif;
   font-size: 18px;
+}
+
+a {
+  color: #990000;
+}
+
+a:hover,
+a:active {
+  color: #770000;
 }
 
 .hide {
@@ -252,4 +263,31 @@ input[type=text] {
   list-style: none;
   margin: 5px 0;
   padding: 10px;
+}
+
+/* Mission Dash */
+.mission-dash .missions {
+  border-collapse: collapse;
+}
+
+.mission-dash .missions td {
+  padding: 5px;
+}
+
+.mission-dash .active {
+  border-left: 15px solid green;
+  border-right: 15px solid green;
+}
+
+.mission-dash .inactive {
+  border-left: 15px solid red;
+  border-right: 15px solid red;
+}
+
+.mission-dash .mission-row {
+  border-bottom: 2px solid #990000;
+}
+
+.mission-dash .mission-row:hover {
+  background-color: #888;
 }

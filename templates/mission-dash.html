@@ -1,13 +1,32 @@
 {% extends "_base.html" %}
 
-{% block extra_html_class %}mission{% endblock %}
+{% block extra_html_class %}mission-dash{% endblock %}
 
 {% block content %}
-
-{% if mission_list %}
-  {% for mission in mission_list %}
-    <div class="">{{ mission.name }}</div>
-  {% endfor %}
-{% endif %}
+  <h1>Missions</h1>
+  {% if mission_list %}
+    <table class="missions">
+      {% for mission in mission_list %}
+        <tr class="mission-row {% if mission.active %}active{% else %}inactive{% endif %}">
+          <td>{{ mission.name }}</td>
+          <td>{{ mission.codeword }}</td>
+          <td><a href="/admin/gm/mission/{{ mission.id }}/change/">Modify mission</a></td>
+          {% if mission.active %}
+            <td><button class="" onclick="admin.deactivateMission({{ mission.id }});">Deactivate Mission</button></td>
+          {% else %}
+            <td><button class="" onclick="admin.activateMission({{ mission.id }});">Activate Mission</button></td>
+          {% endif %}
+          <!-- TODO: deal with mission news here
+          {% if news.active %}
+            <td><button class="">Deactivate News</button></td>
+          {% else %}
+            <td><button class="">Activate News</button></td>
+          {% endif %}
+          -->
+          <td><a href="/admin/mission?id={{ mission.id }}">Run mission</a></td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
 
 {% endblock %}
