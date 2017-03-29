@@ -38,8 +38,8 @@ class Mission(BaseModel):
     codeword = CharField(max_length=255, help_text="Secret code required for some missions", null=True, blank=True)
     news_on_trigger = ManyToManyField("News", related_name="news_on_trigger", blank=True, help_text="Secret code required for some missions")
     location = ForeignKey("Location", related_name="mission_location", blank=True, null=True)
-    repetitions = IntegerField(default=1, help_text="How many times can the mission be re-run. (To use this, the mission should trigger itself on success and/or failure)")
     active = BooleanField(default=False);
+    #TODO: add retired - in mission dash these will show in separate list - also add button to mission completion page
 
 class Stage(BaseModel):
     description = TextField(help_text="GM-only notes", null=True, blank=True)
@@ -77,8 +77,10 @@ class Character(BaseModel):
     cooldown = DateTimeField(blank=True, null=True, default=now)
     slug = CharField(max_length=255, null=True)
     registered = BooleanField(help_text="Is the super government registered")
+    active = BooleanField(help_text="Is this character in the game")
     skills = ManyToManyField(Skill, through='CharacterSkillLink')
     member_of = ManyToManyField('Team', through='TeamCharacterLink')
+    gm_notes = TextField(null=True, blank=True, help_text='GM-only notes, not seen by player')
 
 class TeamCharacterLink(Model):
     member = ForeignKey(Character)

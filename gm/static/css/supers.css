@@ -288,6 +288,19 @@ input[type=text] {
   border-bottom: 2px solid #990000;
 }
 
+.mission-dash .mission-row.claimed {
+  background-color: #222;
+}
+
 .mission-dash .mission-row:hover {
   background-color: #888;
+}
+
+/* Character dash */
+.character-dash .characters {
+  border-collapse: collapse;
+}
+
+.character-dash .characters td {
+  padding: 5px;
 }

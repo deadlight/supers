@@ -1,4 +1,14 @@
 /* Admin functionality */
+$.urlParam = function(name){
+  var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+  if (results==null){
+    return null;
+  }
+  else{
+    return results[1] || 0;
+  }
+}
+
 admin = {}
 
 admin.mission = {}
@@ -11,6 +21,19 @@ admin.mission.glory = 0;
 // Select the mission for the current run
 admin.mission.select = function() {
   var missionId = $('.select-mission').val();
+  admin.mission.setCurrentMission(missionId);
+}
+
+//check to see if the mission is pre-selectec in a URL param
+admin.mission.checkMissionURLParam = function() {
+  var id = $.urlParam('id');
+  if ( id != null ) {
+    admin.mission.setCurrentMission(id);
+  }
+}
+
+//Set the mission to run
+admin.mission.setCurrentMission = function(missionId) {
   $.getJSON('/api/v1/mission/' + missionId + '/?format=json', function(data) {
     admin.mission.selectedMission = data;
     console.log('Mission selected: ' + admin.mission.selectedMission.name + ', ' +admin.mission.selectedMission.id );
@@ -231,9 +254,9 @@ admin.mission.handleStagePassed = function(stageID) {
 // display stage passed message
 admin.mission.stagePassed = function(stageID) {
   $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
-    if (data.objects[0].pass_message !== undefined) {
+    if (data.objects[0].success_message !== undefined) {
       //display message
-      message = $('<h1 class="title">Stage passed</h1><p>' + data.objects[0].pass_message + '</p><p><button onclick="admin.mission.handleStagePassed(' + stageID + ');">Continue</button>');
+      message = $('<h1 class="title">Stage passed</h1><p>' + data.objects[0].success_message + '</p><p><button onclick="admin.mission.handleStagePassed(' + stageID + ');">Continue</button>');
       $('.stages').html(message);
     } else {
       // no message
@@ -264,9 +287,9 @@ admin.mission.handleStageFailed = function(stageID) {
 // display stage failed message
 admin.mission.stageFailed = function(stageID) {
   $.getJSON('/api/v1/stage/?format=json&id=' + stageID , function(data) {
-    if (data.objects[0].fail_message != '') {
+    if (data.objects[0].failure_message !== undefined) {
       //display message
-      message = $('<h1 class="title">Stage failed</h1><p>' + data.objects[0].fail_message + '</p><p><button onclick="admin.mission.handleStageFailed(' + stageID + ');">Continue</button>');
+      message = $('<h1 class="title">Stage failed</h1><p>' + data.objects[0].failure_message + '</p><p><button onclick="admin.mission.handleStageFailed(' + stageID + ');">Continue</button>');
       $('.stages').html(message);
     } else {
       // no message
@@ -453,11 +476,6 @@ admin.mission.saveResult = function(success) {
     }
   });
 
-  // reduce mission repetitions by 1 if mission success
-  if (success == true) {
-    $.get('/admin/decrement-repetitions/' + admin.mission.selectedMission.id)
-  }
-
   // unclaim mission
   $.get('/admin/unclaim-mission/' + admin.mission.selectedMission.id);
 
@@ -496,7 +514,7 @@ admin.mission.saveResult = function(success) {
 admin.mission.cancel = function() {
   if (!$.isEmptyObject(admin.mission.selectedMission)) {
     $.get('/admin/unclaim-mission/' + admin.mission.selectedMission.id, function(){
-      location.reload();
+      location = location.href.replace(location.search, "");
     });
   } else {
     location.reload();
@@ -519,13 +537,20 @@ admin.registerSuperior = function(id) {
   });
 }
 
+// Unregister superior
+admin.unregisterSuperior = function(id) {
+  $.get('/admin/unregister/' + id, function(){
+    alert(id + ' unregistered');
+  });
+}
+
 admin.wipeCooldown = function(id) {
   $.get('/admin/update-character-cooldown/' + id + '/0', function() {
     alert('player ' + id + ' cooldown reset');
   });
 }
 
-admin.UnclaimMission = function(id){
+admin.unclaimMission = function(id){
   $.get('/admin/unclaim-mission/' + id, function(){
 
   });
@@ -542,3 +567,21 @@ admin.deactivateMission = function(id){
       location.reload();
   });
 };
+
+admin.activateCharacter = function(id){
+  $.get('/admin/activate-character/' + id, function(){
+    location.reload();
+  });
+};
+
+admin.deactivateCharacter = function(id){
+  $.get('/admin/deactivate-character/' + id, function(){
+      location.reload();
+  });
+};
+
+admin.updateCharacterGlory = function(characterId, modifier){
+  $.get('/admin/update-character-glory/' + characterId + '/' + modifier, function(){
+    location.reload();
+  });
+}

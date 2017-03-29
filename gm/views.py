@@ -15,10 +15,10 @@ def CharacterSheet(request, slug):
             contacts.append(contact.id)
         news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts__in=contacts).extra(order_by=['-trigger_time']).all()[:20]
         # TODO: fix this for teams with one member
-        # try:
-        #     team = Team.objects.get(members=character.id).first()
-        # except Team.DoesNotExist:
-        #     team = None;
+        try:
+            team = Team.objects.get(members=character.id)
+        except Team.DoesNotExist:
+            team = None;
 
         if character.cooldown < now():
             available = True
@@ -34,7 +34,7 @@ def CharacterSheet(request, slug):
         'news': news,
         'available': available,
         'time_to_available': time_to_available,
-        # 'team': team,
+        'team': team,
     })
 
 def Map(request):
@@ -44,7 +44,7 @@ def Map(request):
     })
 
 def RunMission(request):
-    mission_list = Mission.objects.filter(active=True).filter(claimed=False).filter(repetitions__gt=0).all();
+    mission_list = Mission.objects.filter(active=True).filter(claimed=False).all();
     character_list = Character.objects.filter(cooldown__lte=now()).all()
     return render(request, 'mission.html', {
         'mission_list': mission_list,
@@ -67,6 +67,18 @@ def MissionDash(request):
     mission_list = Mission.objects.filter().order_by('name').all()
     return render(request, 'mission-dash.html', {
         'mission_list': mission_list,
+    })
+
+def CharacterDash(request):
+    character_list = Character.objects.filter().order_by('name').all()
+    for character in character_list:
+        time_to_available = character.cooldown-now()
+        time_to_available = floor(time_to_available.total_seconds()/60)+1
+        if time_to_available < 0:
+            time_to_available = 0
+        character.time_to_available = time_to_available
+    return render(request, 'character-dash.html', {
+        'character_list': character_list,
     })
 
 def TriggerMission(request, mission_id):
@@ -122,13 +134,6 @@ def updateTeamGlory(request, team_id, glory):
     team.save()
     return render(request, 'glory-updated.html')
 
-def DecrementRepetitions(request, mission_id):
-    mission = get_object_or_404(Mission, id=mission_id)
-    if mission.repetitions > 0:
-        mission.repetitions -= 1;
-    mission.save()
-    return render(request, 'decrement-repetitions.html')
-
 def LatestNews(request):
     public_feed = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts=1).extra(order_by=['-trigger_time']).all()[:10]
     return render(request, 'news.html', {
@@ -164,6 +169,12 @@ def RegisterSuperior(request, character_id):
     character.save()
     return render(request, 'registered.html')
 
+def UnregisterSuperior(request, character_id):
+    character = get_object_or_404(Character, id=character_id)
+    character.registered = False
+    character.save()
+    return render(request, 'registered.html')
+
 def ActivateMission(request, mission_id):
     mission = get_object_or_404(Mission, id=mission_id)
     mission.active = True
@@ -175,3 +186,15 @@ def DeactivateMission(request, mission_id):
     mission.active = False
     mission.save()
     return render(request, 'trigger-mission.html')
+
+def ActivateCharacter(request, character_id):
+    character = get_object_or_404(Character, id=character_id)
+    character.active = True
+    character.save()
+    return render(request, 'updated-character.html')
+
+def DeactivateCharacter(request, character_id):
+    character = get_object_or_404(Character, id=character_id)
+    character.active = False
+    character.save()
+    return render(request, 'updated-character.html')

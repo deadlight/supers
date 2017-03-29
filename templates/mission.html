@@ -29,6 +29,8 @@
   </section>
 
   <section class="team hide">
+    <h2>Mission</h2>
+    <p class="mission-summary">TODO: mission summary here</p>
     <h2>Select Team Members</h2>
     <select class="select-team-member" name="select-team-member">
       {% for character in character_list %}
@@ -42,4 +44,8 @@
   <section class="stages">
   </section>
 </div>
+
+<script>
+  admin.mission.checkMissionURLParam();
+</script>
 {% endblock %}

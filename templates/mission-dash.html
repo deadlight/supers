@@ -7,10 +7,15 @@
   {% if mission_list %}
     <table class="missions">
       {% for mission in mission_list %}
-        <tr class="mission-row {% if mission.active %}active{% else %}inactive{% endif %}">
+        <tr class="mission-row{% if mission.active %} active{% else %} inactive{% endif %}{% if mission.claimed %} claimed{% endif %}">
           <td>{{ mission.name }}</td>
           <td>{{ mission.codeword }}</td>
           <td><a href="/admin/gm/mission/{{ mission.id }}/change/">Modify mission</a></td>
+          <td>
+            {% if mission.claimed %}
+              <button onclick="admin.unclaimMission({{ mission.id }}); location.reload();">Unclaim</button>
+            {% endif %}
+          </td>
           {% if mission.active %}
             <td><button class="" onclick="admin.deactivateMission({{ mission.id }});">Deactivate Mission</button></td>
           {% else %}
