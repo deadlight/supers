@@ -530,6 +530,18 @@ admin.triggerNews = function(newsURL) {
   });
 }
 
+admin.triggerNewsById = function(id) {
+  $.get('/admin/trigger-news/' + id);
+}
+
+admin.activateNews = function(id, time) {
+  $.get('/admin/activate-news/' + id + '/' + time);
+}
+
+admin.deactivateNews = function(id) {
+  $.get('/admin/deactivate-news/' + id);
+}
+
 // Register superior
 admin.registerSuperior = function(id) {
   $.get('/admin/register/' + id, function(){

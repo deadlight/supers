@@ -18,6 +18,30 @@ a:active {
   display: none;
 }
 
+/* Navigation */
+.navigation {
+  height: 40px;
+  margin-bottom: 20px;
+}
+
+.navigation a {
+  background-color: #ccc;
+  color: #000;
+  display: block;
+  float: left;
+  margin-right: 2px;
+  padding: 5px 10px;
+}
+
+.navigation a:hover {
+  background-color: #990000;
+}
+
+/* Main content */
+.main-content {
+  clear: both;
+}
+
 /* Misson */
 .mission {
   background-color: #000;
@@ -265,34 +289,40 @@ input[type=text] {
   padding: 10px;
 }
 
-/* Mission Dash */
-.mission-dash .missions {
+/* Dash */
+.dash .list {
   border-collapse: collapse;
 }
 
-.mission-dash .missions td {
-  padding: 5px;
+.dash .list td {
+  max-width: 300px;
+  padding: 5px 15px;
 }
 
-.mission-dash .active {
+.dash .active {
   border-left: 15px solid green;
   border-right: 15px solid green;
 }
 
-.mission-dash .inactive {
+.dash .inactive {
   border-left: 15px solid red;
   border-right: 15px solid red;
 }
 
-.mission-dash .mission-row {
+.dash .future {
+  border-left: 15px solid #0E3BA3;
+  border-right: 15px solid #0E3BA3;
+}
+
+.dash .row {
   border-bottom: 2px solid #990000;
 }
 
-.mission-dash .mission-row.claimed {
+.dash .row.claimed {
   background-color: #222;
 }
 
-.mission-dash .mission-row:hover {
+.dash .row:hover {
   background-color: #888;
 }
 

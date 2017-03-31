@@ -1,0 +1,54 @@
+{% extends "_base-admin.html" %}
+
+{% block extra_html_class %}dash news-dash{% endblock %}
+
+{% block content %}
+  <h1>News</h1>
+  {% if active_news_list %}
+    <h2>Active news</h2>
+    <table class="list">
+      {% for news in active_news_list %}
+        <tr class="row active">
+          <td>{{ news.name }}</td>
+          <td><a href="/admin/gm/news/{{ news.id }}/change/">Edit</a></td>
+          <td>{{ news.content }}</td>
+          <td>{{ news.trigger_time }}</td>
+          <td><button onclick="admin.deactivateNews({{ news.id }}); location.reload();">Deactivate</button></td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if future_news_list %}
+    <h2>Future news</h2>
+    <table class="list">
+      {% for news in future_news_list %}
+        <tr class="row future">
+          <td>{{ news.name }}</td>
+          <td><a href="/admin/gm/news/{{ news.id }}/change/">Edit</a></td>
+          <td>{{ news.content }}</td>
+          <td>{{ news.trigger_time }}</td>
+          <td><button onclick="admin.deactivateNews({{ news.id }}); location.reload();">Deactivate</button></td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+
+  {% if inactive_news_list %}
+    <h2>Inactive news</h2>
+    <table class="list">
+      {% for news in inactive_news_list %}
+        <tr class="row inactive">
+          <td>{{ news.name }}</td>
+          <td><a href="/admin/gm/news/{{ news.id }}/change/">Edit</a></td>
+          <td>{{ news.content }}</td>
+          <td>Activate:</td>
+          <td><button onclick="admin.activateNews({{ news.id }}, 10); location.reload();">10 mins</button></td>
+          <td><button onclick="admin.activateNews({{ news.id }}, 5); location.reload();">5 mins</button></td>
+          <td><button onclick="admin.activateNews({{ news.id }}, 0); location.reload();">Now</button></td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+{% endblock %}

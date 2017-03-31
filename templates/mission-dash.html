@@ -1,13 +1,13 @@
-{% extends "_base.html" %}
+{% extends "_base-admin.html" %}
 
-{% block extra_html_class %}mission-dash{% endblock %}
+{% block extra_html_class %}dash mission-dash{% endblock %}
 
 {% block content %}
   <h1>Missions</h1>
   {% if mission_list %}
-    <table class="missions">
+    <table class="list">
       {% for mission in mission_list %}
-        <tr class="mission-row{% if mission.active %} active{% else %} inactive{% endif %}{% if mission.claimed %} claimed{% endif %}">
+        <tr class="row{% if mission.active %} active{% else %} inactive{% endif %}{% if mission.claimed %} claimed{% endif %}">
           <td>{{ mission.name }}</td>
           <td>{{ mission.codeword }}</td>
           <td><a href="/admin/gm/mission/{{ mission.id }}/change/">Modify mission</a></td>

@@ -14,7 +14,6 @@ def CharacterSheet(request, slug):
         for contact in character.contacts.all():
             contacts.append(contact.id)
         news = News.objects.filter(trigger_time__lte=now()).filter(active=True).filter(contacts__in=contacts).extra(order_by=['-trigger_time']).all()[:20]
-        # TODO: fix this for teams with one member
         try:
             team = Team.objects.get(members=character.id)
         except Team.DoesNotExist:
@@ -63,6 +62,16 @@ def OfferBonus(request, stage_id):
         'stage': stage,
     })
 
+def NewsDash(request):
+    active_news_list = News.objects.filter(active=True).filter(trigger_time__lte=now()).extra(order_by=['-trigger_time']).all()
+    future_news_list = News.objects.filter(active=True).filter(trigger_time__gte=now()).extra(order_by=['-trigger_time']).all()
+    inactive_news_list = News.objects.filter(active=False).extra(order_by=['-trigger_time']).all()
+    return render(request, 'news-dash.html', {
+        'active_news_list': active_news_list,
+        'future_news_list': future_news_list,
+        'inactive_news_list': inactive_news_list,
+    })
+
 def MissionDash(request):
     mission_list = Mission.objects.filter().order_by('name').all()
     return render(request, 'mission-dash.html', {
@@ -93,6 +102,21 @@ def TriggerNews(request, news_id):
     #set news item live
     news_item = get_object_or_404(News, id=news_id)
     news_item.trigger_time = now()
+    news_item.save()
+    return render(request, 'trigger-news.html')
+
+def ActivateNews(request, news_id, minutes):
+    #activate news item
+    news_item = get_object_or_404(News, id=news_id)
+    news_item.trigger_time = now() + timedelta(minutes = int(minutes))
+    news_item.active = True
+    news_item.save()
+    return render(request, 'trigger-news.html')
+
+def DeactivateNews(request, news_id):
+    #deactivate news item
+    news_item = get_object_or_404(News, id=news_id)
+    news_item.active = False
     news_item.save()
     return render(request, 'trigger-news.html')
 

@@ -1,21 +1,58 @@
-{% extends "_base.html" %}
+{% extends "_base-admin.html" %}
 
-{% block extra_html_class %}character-dash{% endblock %}
+{% block extra_html_class %}dash character-dash{% endblock %}
 
 {% block content %}
   <h1>Characters</h1>
   {% if character_list %}
-    <table class="characters">
+    <table class="list">
       {% for character in character_list %}
-
-          <tr>
+        {% if character.active %}
+          <tr class="row{% if character.time_to_available > 0 %} inactive{% else %} active{% endif %}">
             <td>{{ character.name }}</td>
+            <td>{{ character.player }}</td>
+            <td><a href="/character/{{ character.slug }}">Character sheet</a></td>
+            <td><a href="/admin/gm/character/{{ character.id }}/change/">Modify</a></td>
+            <td>
+              Cooldown: {{ character.time_to_available }}
+            </td>
+            <td>
+              <button onclick="admin.wipeCooldown({{ character.id }}); location.reload();">Reset cooldown</button>
+            </td>
+            <td>
+              {% if character.registered %}
+                <button onclick="admin.unregisterSuperior({{ character.id }}); location.reload();">Unregister</button>
+              {% else %}
+                <button onclick="admin.registerSuperior({{ character.id }}); location.reload();">Register</button>
+              {% endif %}
+            </td>
+            <td>
+              <button onclick="admin.updateCharacterGlory({{ character.id }}, -1);">&nbsp;-&nbsp;</button>
+            </td>
+            <td>
+              Glory: {{ character.glory }}
+            </td>
+            <td>
+              <button onclick="admin.updateCharacterGlory({{ character.id }}, 1);">&nbsp;+&nbsp;</button>
+            </td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </table>
+
+    <h2>Deactivated characters</h2>
+    <table class="list">
+      {% for character in character_list %}
+        {% if character.active == False %}
+          <tr class="row{% if character.time_to_available > 0 %} inactive{% else %} active{% endif %}">
+            <td>{{ character.name }}</td>
+            <td>{{ character.player }}</td>
             <td><a href="/character/{{ character.slug }}">Character sheet</a></td>
             <td><a href="/admin/gm/character/{{ character.id }}/change/">Modify</a></td>
             {% if character.active %}
-              <!--<td><button class="" onclick="admin.deactivateCharacter({{ character.id }}); location.reload();">Deactivate</button></td>-->
+              <td><button class="" onclick="admin.deactivateCharacter({{ character.id }}); location.reload();">Deactivate</button></td>
             {% else %}
-              <!--<td><button class="" onclick="admin.activateCharacter({{ character.id }}); location.reload();">Activate</button></td>-->
+              <td><button class="" onclick="admin.activateCharacter({{ character.id }}); location.reload();">Activate</button></td>
             {% endif %}
             <td>
               Cooldown: {{ character.time_to_available }}
@@ -40,6 +77,7 @@
               <button onclick="admin.updateCharacterGlory({{ character.id }}, 1);">&nbsp;+&nbsp;</button>
             </td>
           </tr>
+        {% endif %}
       {% endfor %}
     </table>
   {% endif %}
